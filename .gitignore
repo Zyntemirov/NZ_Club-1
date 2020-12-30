@@ -323,3 +323,8 @@ fabric.properties
 
 /staticfiles
 /verstka
+
+dump.sql
+*/migrations/*
+!*/migrations/__init__.py
+/credentials.json
