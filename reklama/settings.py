@@ -25,8 +25,8 @@ SECRET_KEY = 'r_xfs@jhym^aza-gxl0u9ivg8ll*k^puy39d4d#d2!k1ykhmb_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '81.90.181.85', '91.207.28.118', '91.213.233.92']
-GLOBAL_HOST = 'http://81.90.181.85'
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '217.182.226.148', '91.207.28.118', '91.213.233.92']
+GLOBAL_HOST = 'http://217.182.226.148'
 
 # Application definition
 
