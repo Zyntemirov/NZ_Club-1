@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
 
+load_dotenv()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -89,17 +91,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'reklama.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
+# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+# Use Postgres 12 only.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR, 'reklama/my.cnf'),
-        },
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT')
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -147,7 +150,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/app/media'
+MEDIA_ROOT = '/media'
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 

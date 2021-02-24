@@ -3,6 +3,7 @@
 # Edit at https://www.gitignore.io/?templates=python,django,intellij,pycharm
 
 ### Django ###
+.env
 *.log
 *.pot
 *.pyc
