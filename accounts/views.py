@@ -149,3 +149,36 @@ class UserActivationView(GenericAPIView):
                 return Response({'detail': 'Code is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'detail': 'Enter code'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RequestResetPasswordView(GenericAPIView):
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        code = str(randint(1000, 9999))
+        id = f'{randint(1000, 9999)}{code}{"".join(choices(ascii_letters, k=4))}'
+        phone = request.data.get('phone', '')
+        if phone:
+            try:
+                user = User.objects.get(phone=phone)
+                user.otp = code
+                send_message_code(id, code, phone)
+                user.save()
+                return Response({'phone': user.phone,
+                                 'message': 'We sent you reset SMS. Please check the message and enter the code'},
+                                status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'detail': 'User with this phone number does not exists.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'detail': 'Enter phone number'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SetNewPasswordView(GenericAPIView):
+    serializer_class = SetNewPasswordSerializer
+    permission_classes = []
+
+    def patch(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'message': 'Password reset success'}, status=status.HTTP_200_OK)

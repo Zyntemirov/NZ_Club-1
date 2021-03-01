@@ -12,4 +12,6 @@ urlpatterns = [
     #############################NEW URLS##########################################
     path('registration/', RegisterView.as_view(), name='registration'),
     path('activation/', UserActivationView.as_view(), name='user_activation'),
+    path('password_reset/', RequestResetPasswordView.as_view(), name='password_reset'),
+    path('set_new_password/', SetNewPasswordView.as_view(), name='set_new_password')
 ]
