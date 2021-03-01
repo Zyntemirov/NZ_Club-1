@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'djoser',
+    'django_celery_beat',
     'fcm_django',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -247,6 +248,11 @@ SWAGGER_SETTINGS = {
         },
     },
 }
+# CELERY SETTINGS
+CELERY_BROKER_URL = "amqp://localhost"
+CELERY_TIMEZONE = "Asia/Bishkek"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
 DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': '/password/reset/confirm/{uid}/{token}',
