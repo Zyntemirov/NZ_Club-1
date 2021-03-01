@@ -1,7 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
-
+from django.contrib import auth
 from .models import userProfile, User
 from django.contrib.auth import get_user_model
 from fcm_django.models import FCMDevice
@@ -64,6 +64,31 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.is_active = False
         user.save()
         return user
+
+
+class LoginSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(max_length=256, min_length=10)
+    password = serializers.CharField(max_length=256, write_only=True)
+    tokens = serializers.SerializerMethodField('get_tokens')
+
+    class Meta:
+        model = User
+        fields = ['phone', 'password', 'tokens']
+
+    def get_tokens(self, obj):
+        user = User.objects.get(phone=obj['phone'])
+        return {'refresh': user.tokens()['refresh'],
+                'access': user.tokens()['access']}
+
+    def validate(self, attrs):
+        phone = attrs.get('phone', '')
+        password = attrs.get('password', '')
+        user = auth.authenticate(phone=phone, password=password)
+        if not user:
+            raise AuthenticationFailed('Invalid credentials, try again')
+        if not user.is_active:
+            raise AuthenticationFailed('Account disabled, contact admin')
+        return {'phone': user.phone, 'tokens': user.tokens()}
 
 
 class SetNewPasswordSerializer(serializers.Serializer):

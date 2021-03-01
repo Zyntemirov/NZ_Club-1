@@ -10,6 +10,7 @@ urlpatterns = [
     # path("reset_password_by_email_code", ResetPasswordWithEmailCodeView.as_view(), name="reset-password"),
     # path("check_activation_user", CheckActivationUserView.as_view(), name="check-activation")
     #############################NEW URLS##########################################
+    path('login/', LoginView.as_view(), name='login'),
     path('registration/', RegisterView.as_view(), name='registration'),
     path('activation/', UserActivationView.as_view(), name='user_activation'),
     path('password_reset/', RequestResetPasswordView.as_view(), name='password_reset'),

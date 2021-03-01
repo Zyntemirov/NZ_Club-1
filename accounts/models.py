@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.validators import RegexValidator
 from django.db import models
 from django.conf import settings
@@ -15,8 +15,12 @@ class User(AbstractUser):
         ])
     otp = models.CharField(verbose_name=_('SMS code'), max_length=4)
 
-
     USERNAME_FIELD = 'phone'
+
+    def tokens(self):
+        refresh = RefreshToken.for_user(self)
+        return {'refresh': str(refresh),
+                'access': str(refresh.access_token)}
 
 
 # Create your models here.

@@ -116,6 +116,16 @@ class FcmCreateView(UpdateAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class LoginView(GenericAPIView):
+    serializer_class = LoginSerializer
+    permission_classes = []
+
+    def post(self, reqeust, *args, **kwargs):
+        serializer = self.serializer_class(data=reqeust.data)
+        serializer.is_valid()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class RegisterView(GenericAPIView):
     serializer_class = RegisterSerializer
     permission_classes = []
