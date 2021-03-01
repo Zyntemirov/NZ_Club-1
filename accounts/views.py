@@ -1,7 +1,12 @@
+from random import randint, choices
+from string import ascii_letters
+
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.generics import *
 from rest_framework.permissions import IsAuthenticated
+
+from .models import User
 from .permissions import IsOwnerProfileOrReadOnly
 from .serializers import *
 from django.contrib.auth import get_user_model
@@ -10,8 +15,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from fcm_django.models import FCMDevice
 
-
 # Create your views here.
+from .utils import send_message_code
+
 
 class UserProfileListCreateView(ListAPIView):
     queryset = userProfile.objects.all()
@@ -108,3 +114,38 @@ class FcmCreateView(UpdateAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class RegisterView(GenericAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        code = str(randint(1000, 9999))
+        id = f'{randint(1000, 9999)}{code}{"".join(choices(ascii_letters, k=4))}'
+        phone = self.request.data.get('phone', '')
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save(otp=code)
+            sms_resp = send_message_code(id, code, phone)
+            return Response({'phone': serializer.data.get('phone'), 'message': sms_resp},
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserActivationView(GenericAPIView):
+    permission_classes = []
+
+    def put(self, request, *args, **kwargs):
+        code = request.data.get('code', '')
+        phone = request.data.get('phone', '')
+        user = User.objects.get(phone=phone)
+        if code:
+            if code == user.otp:
+                user.is_active = True
+                user.save()
+                return Response({'detail': 'User is successfully activated'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'Code is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'detail': 'Enter code'}, status=status.HTTP_400_BAD_REQUEST)

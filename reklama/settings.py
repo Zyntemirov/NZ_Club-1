@@ -269,3 +269,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 'sendertoemail@gmail.com'
 EMAIL_HOST_PASSWORD = '1992sher'
+
+NIKITA_LOGIN = os.getenv('NIKITA_LOGIN')
+NIKITA_PASSWORD = os.getenv('NIKITA_PASSWORD')
+NIKITA_SENDER = os.getenv('NIKITA_SENDER')
