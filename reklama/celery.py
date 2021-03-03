@@ -1,8 +1,8 @@
 import os
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Ebook.settings')
-app = Celery('Ebook')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reklama.settings')
+app = Celery('reklama')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
