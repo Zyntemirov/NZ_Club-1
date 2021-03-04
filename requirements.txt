@@ -36,7 +36,6 @@ kombu==5.0.2
 lxml==4.6.2
 Markdown==3.2.1
 MarkupSafe==1.1.1
-mysqlclient==1.4.6
 openapi-codec==1.3.2
 packaging==20.9
 Pillow==7.0.0
