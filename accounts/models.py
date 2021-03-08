@@ -25,11 +25,21 @@ class User(AbstractUser):
 
 # Create your models here.
 class userProfile(models.Model):
+    REGION = (
+        (1, 'Ош'),
+        (2, 'Ысык-Кол'),
+        (3, 'Жалал-Абад'),
+        (4, 'Талас'),
+        (5, 'Баткен'),
+        (6, 'Нарын'),
+        (7, 'Чуй'),
+
+    )
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile",
                                 verbose_name="Пользователь")
     agent = models.BooleanField(default=False, verbose_name='Агент Статус')
     gender = models.CharField(max_length=30, blank=True, verbose_name="Пол")
-    region = models.CharField(max_length=200, blank=True, verbose_name="Адрес")
+    region = models.CharField("Регион", max_length=10, choices=REGION, null=True, blank=True)
     view_count = models.IntegerField(default=0, verbose_name="Просмотров")
     balance = models.FloatField(default=0, verbose_name="Остаток баланса")
     withdrawn_balance = models.FloatField(default=0, verbose_name="Cнятый баланс")

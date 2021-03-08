@@ -31,6 +31,11 @@ class Category(models.Model):
 
 
 class Video(models.Model):
+    TYPE = (
+        (1, 'Обычный'),
+        (2, 'Премиум'),
+        (3, 'Благотворительность'),
+    )
     title = models.CharField(max_length=100, verbose_name="Название")
     text = models.TextField(verbose_name="Описание")
     phone_1 = models.CharField(max_length=16, null=True, blank=True, verbose_name="Телефон номер 1")
@@ -45,11 +50,13 @@ class Video(models.Model):
     # video = models.FileField(upload_to='media/videos/%Y/%m/%d/', verbose_name="Ютуб ссылка")
     video = models.CharField(max_length=255, null=True, verbose_name="Ютуб ссылка")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='videos', verbose_name="Категория")
+    type = models.CharField("Тип", choices=TYPE, max_length=20)
     create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
     is_active = models.BooleanField(default=True, verbose_name="Активный")
     is_top = models.BooleanField(default=True, verbose_name="Топ")
     image = models.ImageField(upload_to='videos/', verbose_name="Обложка")
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='users', verbose_name="Владелец")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='users',
+                              verbose_name="Владелец")
 
     class Meta:
         verbose_name = _("Видео")
@@ -102,7 +109,8 @@ class Tariff(models.Model):
 class Comment(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='comments', verbose_name="Ютуб ссылка")
     text = models.TextField(verbose_name="Текст")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments', verbose_name="Пользователь")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments',
+                             verbose_name="Пользователь")
     create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
     is_active = models.BooleanField(default=True, verbose_name="Активный")
 
@@ -117,7 +125,8 @@ class Comment(models.Model):
 class Reply(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies', verbose_name="Коментарий")
     text = models.TextField(verbose_name="Текст")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='replies', verbose_name="Пользователь")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='replies',
+                             verbose_name="Пользователь")
     create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
     is_active = models.BooleanField(default=True, verbose_name="Активный")
 
@@ -135,7 +144,8 @@ class FAQ(models.Model):
 
 
 class Request(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='categories', verbose_name="Категория")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='categories',
+                                 verbose_name="Категория")
     address = models.CharField(max_length=200, verbose_name="Адрес")
     phone = models.CharField(max_length=15, verbose_name="Телефон номер")
     sum = models.IntegerField(default=0, verbose_name="Цена")
@@ -190,7 +200,8 @@ def banner_image(sender, instance, **kwargs):
 
 
 class ViewBanner(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='banners', verbose_name="Пользователь")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='banners',
+                             verbose_name="Пользователь")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE, related_name='banners', verbose_name="Баннер видео")
     create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
 
@@ -200,7 +211,8 @@ class ViewBanner(models.Model):
 
 
 class ViewHistory(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='histories', verbose_name="Пользователь")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='histories',
+                             verbose_name="Пользователь")
     bonus = models.IntegerField(default=0, verbose_name="Бонус")
     video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='histories', verbose_name="Ютуб ссылка")
     create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
