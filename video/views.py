@@ -29,12 +29,14 @@ class VideoTrainingView(viewsets.generics.ListAPIView):
 
 class VideosView(viewsets.generics.ListAPIView):
     serializer_class = VideoSerializer
+
     # pagination_class = MyPagination
 
     def get_queryset(self):
         user = get_user_model().objects.get(id=self.kwargs['user_id'])
         if user:
-            queryset = Video.objects.filter(Q(is_top=False) | Q(views__in=[user])).order_by('create_at').reverse().distinct()
+            queryset = Video.objects.filter(Q(is_top=False) | Q(views__in=[user])).order_by(
+                'create_at').reverse().distinct()
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -103,6 +105,14 @@ class VideoSearchView(viewsets.generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Video.objects.filter(title__icontains=self.kwargs['search'])
+        return queryset
+
+
+class VideoFilterView(ListAPIView):
+    serializer_class = VideoSerializer
+
+    def get_queryset(self):
+        queryset = Video.objects.filter(owner__region=self.kwargs['region'])
         return queryset
 
 
