@@ -8,14 +8,20 @@ class TariffInline(admin.TabularInline):
     model = Tariff
 
 
+@admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     list_display = ['owner', 'title', 'category']
     list_display_links = list_display
     search_fields = ['title', 'text']
     list_filter = ['owner__username']
     inlines = [TariffInline]
-
     exclude = ('favorites', 'views', 'is_active', 'watched_videos')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(owner=request.user)
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -67,13 +73,12 @@ class BannerAdmin(admin.ModelAdmin):
 
     exclude = ('views',)
 
-    def has_add_permission(self, request):
-        if len(Banner.objects.all()) > 12:
-            return False
-        return True
+    # def has_add_permission(self, request):
+    #     if len(Banner.objects.all()) > 12:
+    #         return False
+    #     return True
 
 
-admin.site.register(Video, VideoAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Reply, ReplyAdmin)

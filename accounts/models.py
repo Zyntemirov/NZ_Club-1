@@ -5,6 +5,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Group
 
 
 class User(AbstractUser):
@@ -26,13 +27,13 @@ class User(AbstractUser):
 # Create your models here.
 class userProfile(models.Model):
     REGION = (
-        (1, 'Ош'),
-        (2, 'Ысык-Кол'),
-        (3, 'Жалал-Абад'),
-        (4, 'Талас'),
-        (5, 'Баткен'),
-        (6, 'Нарын'),
-        (7, 'Чуй'),
+        ('1', 'Ош'),
+        ('2', 'Ысык-Кол'),
+        ('3', 'Жалал-Абад'),
+        ('4', 'Талас'),
+        ('5', 'Баткен'),
+        ('6', 'Нарын'),
+        ('7', 'Чуй'),
 
     )
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile",
@@ -48,7 +49,6 @@ class userProfile(models.Model):
     birth_date = models.DateField(default=datetime.now, verbose_name="День рождения")
     date_joined = models.DateTimeField(auto_now_add=True, verbose_name="Дата вступления")
     updated_on = models.DateTimeField(auto_now=True, verbose_name="Обновление")
-
     class Meta:
         verbose_name = _("Аккаунт профиль")
         verbose_name_plural = _("Аккаунт профиль")

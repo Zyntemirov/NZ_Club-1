@@ -32,9 +32,9 @@ class Category(models.Model):
 
 class Video(models.Model):
     TYPE = (
-        (1, 'Обычный'),
-        (2, 'Премиум'),
-        (3, 'Благотворительность'),
+        ('1', 'Обычный'),
+        ('2', 'Премиум'),
+        ('3', 'Благотворительность'),
     )
     title = models.CharField(max_length=100, verbose_name="Название")
     text = models.TextField(verbose_name="Описание")
@@ -50,7 +50,7 @@ class Video(models.Model):
     # video = models.FileField(upload_to='media/videos/%Y/%m/%d/', verbose_name="Ютуб ссылка")
     video = models.CharField(max_length=255, null=True, verbose_name="Ютуб ссылка")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='videos', verbose_name="Категория")
-    type = models.CharField("Тип", choices=TYPE, max_length=20)
+    type = models.CharField(verbose_name="Тип", choices=TYPE, max_length=20)
     create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
     is_active = models.BooleanField(default=True, verbose_name="Активный")
     is_top = models.BooleanField(default=True, verbose_name="Топ")

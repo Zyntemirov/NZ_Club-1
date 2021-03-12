@@ -20,7 +20,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2'),
+            'fields': ('username', 'email', 'password1', 'password2', 'groups'),
         }),
     )
     list_display = ('username', 'email', 'date_joined', 'is_active')
