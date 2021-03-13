@@ -31,6 +31,11 @@ class Category(models.Model):
 
 
 class Video(models.Model):
+    STATUS = (
+        ('1', 'Отклонено'),
+        ('2', 'Активно'),
+        ('3', 'В ожидании')
+    )
     TYPE = (
         ('1', 'Обычный'),
         ('2', 'Премиум'),
@@ -51,6 +56,7 @@ class Video(models.Model):
     video = models.CharField(max_length=255, null=True, verbose_name="Ютуб ссылка")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='videos', verbose_name="Категория")
     type = models.CharField(verbose_name="Тип", choices=TYPE, max_length=20)
+    status = models.CharField("Статус", max_length=20, choices=STATUS, null=True, blank=True)
     create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
     is_active = models.BooleanField(default=True, verbose_name="Активный")
     is_top = models.BooleanField(default=True, verbose_name="Топ")

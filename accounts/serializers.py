@@ -1,10 +1,17 @@
+from django.contrib.auth.models import update_last_login
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from django.contrib import auth
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .models import userProfile, User
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from fcm_django.models import FCMDevice
+from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import (AuthenticationFailed, ValidationError)
+from rest_framework_simplejwt.serializers import (PasswordField, TokenRefreshSerializer as BaseRefreshSerializer)
+from rest_framework_simplejwt.settings import api_settings
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -69,16 +76,29 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(max_length=256, min_length=10)
     password = serializers.CharField(max_length=256, write_only=True)
-    tokens = serializers.SerializerMethodField('get_tokens')
+    refresh = serializers.SerializerMethodField('get_refresh_token')
+    access = serializers.SerializerMethodField('get_access_token')
+    user_info = serializers.SerializerMethodField('get_user_info')
 
     class Meta:
         model = User
-        fields = ['phone', 'password', 'tokens']
+        fields = ['phone', 'password', 'refresh', 'access', 'user_info']
 
-    def get_tokens(self, obj):
+    def get_user_info(self, obj):
         user = User.objects.get(phone=obj['phone'])
-        return {'refresh': user.tokens()['refresh'],
-                'access': user.tokens()['access']}
+        user_profile = userProfile.objects.get(user=user)
+        return {
+            'region': str(user_profile.get_region_display()),
+            'gender': str(user_profile.gender)
+        }
+
+    def get_refresh_token(self, obj):
+        user = User.objects.get(phone=obj['phone'])
+        return user.tokens()['refresh']
+
+    def get_access_token(self, obj):
+        user = User.objects.get(phone=obj['phone'])
+        return user.tokens()['access']
 
     def validate(self, attrs):
         phone = attrs.get('phone', '')

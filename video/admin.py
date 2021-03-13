@@ -7,21 +7,41 @@ from video.models import *
 class TariffInline(admin.TabularInline):
     model = Tariff
 
+    def has_add_permission(self, request, obj):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_view_permission(self, request, obj=None):
+        return True
+
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ['owner', 'title', 'category']
-    list_display_links = list_display
+    list_display = ['owner', 'title', 'category', 'status']
+    list_display_links = ['owner', 'title', 'category']
     search_fields = ['title', 'text']
     list_filter = ['owner__username']
     inlines = [TariffInline]
     exclude = ('favorites', 'views', 'is_active', 'watched_videos')
+    list_editable = ['status', ]
+
+    # actions = ['make_activation']
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs
         return qs.filter(owner=request.user)
+
+    def make_activation(self, request, queryset):
+        queryset.update(status='2')
+
+    make_activation.short_description = 'Активировать'
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -49,10 +69,17 @@ class RequestAdmin(admin.ModelAdmin):
     search_fields = ['phone', ]
 
 
+@admin.register(ViewHistory)
 class ViewHistoryAdmin(admin.ModelAdmin):
     list_display = ['user', 'bonus', 'video', 'create_at']
     list_display_links = list_display
     list_filter = ['user', 'video']
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(video__owner=request.user)
 
 
 class ViewBannerAdmin(admin.ModelAdmin):
@@ -85,6 +112,5 @@ admin.site.register(Reply, ReplyAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.register(Request, RequestAdmin)
 admin.site.register(Banner, BannerAdmin)
-admin.site.register(ViewHistory, ViewHistoryAdmin)
 admin.site.register(ViewBanner, ViewBannerAdmin)
 admin.site.register(VideoTraining, VideoTrainingAdmin)

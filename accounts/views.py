@@ -5,6 +5,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.generics import *
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenViewBase
 
 from .models import User
 from .permissions import IsOwnerProfileOrReadOnly
@@ -33,7 +34,7 @@ class UserProfileDetailView(RetrieveUpdateAPIView):
         queryset = userProfile.objects.all()
         user_profile = get_object_or_404(queryset, user_id=kwargs['pk'])
         serializer = self.get_serializer(user_profile)
-        return Response(serializer.data)
+        return Response({'data': serializer.data, 'phone': user_profile.user.phone}, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         queryset = userProfile.objects.all()
@@ -122,7 +123,7 @@ class LoginView(GenericAPIView):
 
     def post(self, reqeust, *args, **kwargs):
         serializer = self.serializer_class(data=reqeust.data)
-        serializer.is_valid()
+        serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
