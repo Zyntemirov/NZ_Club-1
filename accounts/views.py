@@ -193,3 +193,11 @@ class SetNewPasswordView(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'message': 'Password reset success'}, status=status.HTTP_200_OK)
+
+
+class TokenObtainPairView(TokenViewBase):
+    serializer_class = TokenPairObtainSerializer
+
+
+class TokenRefreshView(TokenViewBase):
+    serializer_class = TokenRefreshSerializer

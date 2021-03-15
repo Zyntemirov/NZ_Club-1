@@ -3,15 +3,15 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from django.contrib import auth
+from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework_simplejwt.serializers import login_rule, user_eligible_for_login
 from .models import userProfile, User
 from django.contrib.auth import get_user_model, authenticate
 from fcm_django.models import FCMDevice
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import (AuthenticationFailed, ValidationError)
 from rest_framework_simplejwt.serializers import (PasswordField, TokenRefreshSerializer as BaseRefreshSerializer)
-from rest_framework_simplejwt.settings import api_settings
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -137,3 +137,59 @@ class SetNewPasswordSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise AuthenticationFailed('User is not exists')
         return super().validate(attrs)
+
+
+class TokenPairObtainSerializer(serializers.Serializer):
+    default_error_messages = {
+        'no_active_account': _('No active account found with the given credentials')
+    }
+    phone = serializers.CharField(required=False)
+    password = PasswordField()
+
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
+    # TODO: Add additional claims
+    @classmethod
+    def get_token(cls, user):
+        token = RefreshToken.for_user(user)
+        user_profile = userProfile.objects.get(user=user)
+        token['phone'] = user.phone
+        token['agent'] = user_profile.agent
+        token['gender'] = user_profile.gender
+        token['region'] = user_profile.get_region_display()
+        token['birth_date'] = str(user_profile.birth_date)
+        return token
+
+    def validate(self, attrs):
+        phone = attrs.get('phone', '')
+        if not phone:
+            raise ValidationError(_('Provide at least phone'))
+        password = attrs.get('password', '')
+        request = self.context.get('request')
+        user = authenticate(request=request, phone=phone, password=password)
+
+        if not getattr(login_rule, user_eligible_for_login)(user):
+            raise AuthenticationFailed(
+                self.error_messages['no_active_account'],
+                'no_active_account',
+            )
+        refresh = self.get_token(user)
+        data = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }
+        if api_settings.UPDATE_LAST_LOGIN:
+            update_last_login(None, user)
+        return data
+
+
+class TokenRefreshSerializer(BaseRefreshSerializer):
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass

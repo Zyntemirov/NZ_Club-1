@@ -88,7 +88,7 @@ class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ['id', 'title', 'text', 'image', 'category', 'views',
-                  'favorites', 'comments', 'is_favorite']
+                  'favorites', 'comments', 'is_favorite', 'get_status_display']
 
 
 class VideoDetailSerializer(serializers.ModelSerializer):
@@ -125,7 +125,8 @@ class VideoDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Video
-        fields = ['id', 'title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site', 'video', 'create_at',
+        fields = ['id', 'title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site', 'video',
+                  'create_at',
                   'owner', 'views', 'favorites', 'comments', 'is_favorite', 'last_comment']
 
 

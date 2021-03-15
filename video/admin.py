@@ -28,8 +28,15 @@ class VideoAdmin(admin.ModelAdmin):
     list_filter = ['owner__username']
     inlines = [TariffInline]
     exclude = ('favorites', 'views', 'is_active', 'watched_videos')
+    list_per_page = 50
+    autocomplete_fields = ['owner', ]
+    list_select_related = ['owner']
     list_editable = ['status', ]
 
+    # Test
+
+    # radio_fields = {'status':admin.VERTICAL}
+    # fields = ('title',)
     # actions = ['make_activation']
 
     def get_queryset(self, request):
