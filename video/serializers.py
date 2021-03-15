@@ -42,26 +42,47 @@ class VideoTrainingSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class FilterReviewSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        data = data.filter(parent=None)
+        return super().to_representation(data)
+
+
+class RecursiveSerializer(serializers.Serializer):
+    def to_representation(self, instance):
+        serializer = self.parent.parent.__class__(instance, context=self.context)
+        return serializer.data
+
+
 class CommentDetailSerializer(serializers.ModelSerializer):
-    replies = ReplySerializer(many=True)
     user = UserSerializer()
+    children = RecursiveSerializer(many=True)
 
     class Meta:
+        list_serializer_filter = FilterReviewSerializer
         model = Comment
         ref_name = 'comment.user'
-        fields = ['id', 'text', 'create_at', 'user', 'replies']
+        fields = ['id', 'text', 'create_at', 'user', 'children']
 
 
-class CreateReplySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Reply
-        fields = ['comment', 'text', 'user']
+# class CreateCommentSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Comment
+#         fields = ['text', 'video', 'user']
 
 
 class CreateCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['text', 'video', 'user']
+        fields = ['text', 'video', 'parent']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        comment = Comment.objects.create(user=user, **validated_data)
+        return comment
+
+    def update(self, instance, validated_data):
+        pass
 
 
 class VideoSerializer(serializers.ModelSerializer):

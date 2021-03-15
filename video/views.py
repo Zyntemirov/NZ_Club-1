@@ -64,6 +64,7 @@ class ViewsDetailVideoView(viewsets.generics.ListAPIView):
 
 class CommentsDetailVideoView(viewsets.generics.ListAPIView):
     serializer_class = CommentsDetailVideoSerializer
+    queryset = Comment
 
     def get(self, request, *args, **kwargs):
         queryset = Video.objects.all()
@@ -251,11 +252,6 @@ class UpVideoInSevenDayView(viewsets.generics.UpdateAPIView):
 # create post API
 class CreateCommentView(viewsets.generics.CreateAPIView):
     serializer_class = CreateCommentSerializer
-    permission_classes = [IsAuthenticated]
-
-
-class CreateReplyView(viewsets.generics.CreateAPIView):
-    serializer_class = CreateReplySerializer
     permission_classes = [IsAuthenticated]
 
 

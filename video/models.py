@@ -117,28 +117,14 @@ class Comment(models.Model):
     text = models.TextField(verbose_name="Текст")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments',
                              verbose_name="Пользователь")
+    parent = models.ForeignKey('self', verbose_name="Родитель", related_name='children', on_delete=models.SET_NULL,
+                               blank=True, null=True)
     create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
     is_active = models.BooleanField(default=True, verbose_name="Активный")
 
     class Meta:
         verbose_name = _("Комментарий")
         verbose_name_plural = _("Комментарии")
-
-    def __str__(self):
-        return self.text
-
-
-class Reply(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies', verbose_name="Коментарий")
-    text = models.TextField(verbose_name="Текст")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='replies',
-                             verbose_name="Пользователь")
-    create_at = models.DateTimeField(default=datetime.now, verbose_name="Дата создания")
-    is_active = models.BooleanField(default=True, verbose_name="Активный")
-
-    class Meta:
-        verbose_name = _("Ответ")
-        verbose_name_plural = _("Ответы")
 
     def __str__(self):
         return self.text

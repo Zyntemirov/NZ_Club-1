@@ -61,11 +61,6 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ['text']
 
 
-class ReplyAdmin(admin.ModelAdmin):
-    list_display = ['user', 'text', 'create_at', 'comment']
-    search_fields = ['text']
-
-
 class FAQAdmin(admin.ModelAdmin):
     list_display = ['question']
     search_fields = ['question', 'reply']
@@ -115,7 +110,6 @@ class BannerAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Comment, CommentAdmin)
-admin.site.register(Reply, ReplyAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.register(Request, RequestAdmin)
 admin.site.register(Banner, BannerAdmin)

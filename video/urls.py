@@ -22,6 +22,5 @@ urlpatterns = [
     path('video/update/user_not_completely_watched', UserNotFullyWatchedView.as_view()),
     path('video/update/put_first', UpVideoInSevenDayView.as_view()),
     path('create/comment', CreateCommentView.as_view()),
-    path('create/reply', CreateReplyView.as_view()),
     path('create/request', CreateRequestView.as_view()),
 ]
