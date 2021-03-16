@@ -23,7 +23,7 @@ django-rest-swagger==2.1.2
 django-templated-mail==1.1.1
 django-timezone-field==4.1.1
 djangorestframework==3.11.0
-djangorestframework-simplejwt==4.6.0
+djangorestframework-simplejwt==4.4.0
 djoser==2.0.3
 drf-yasg==1.17.1
 fcm-django==0.3.4
