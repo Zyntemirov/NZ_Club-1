@@ -53,7 +53,7 @@ class Video(models.Model):
     watched_videos = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='watched_videos')
     favorites = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favorites')
     # video = models.FileField(upload_to='media/videos/%Y/%m/%d/', verbose_name="Ютуб ссылка")
-    video = models.CharField(max_length=255, null=True, verbose_name="Ютуб ссылка")
+    video = models.CharField(max_length=255, null=True, verbose_name="Ютуб ссылка", help_text="Просмотр видео")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='videos', verbose_name="Категория")
     type = models.CharField(verbose_name="Тип", choices=TYPE, max_length=20)
     status = models.CharField("Статус", max_length=20, choices=STATUS, null=True, blank=True)

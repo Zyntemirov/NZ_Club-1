@@ -22,22 +22,16 @@ class TariffInline(admin.TabularInline):
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ['owner', 'title', 'category', 'status']
+    list_display = ['owner', 'title', 'category', 'status', 'is_active']
     list_display_links = ['owner', 'title', 'category']
     search_fields = ['title', 'text']
     list_filter = ['owner__username']
-    inlines = [TariffInline]
     exclude = ('favorites', 'views', 'is_active', 'watched_videos')
     list_per_page = 50
     autocomplete_fields = ['owner', ]
     list_select_related = ['owner']
     list_editable = ['status', ]
-
-    # Test
-
-    # radio_fields = {'status':admin.VERTICAL}
-    # fields = ('title',)
-    # actions = ['make_activation']
+    inlines = [TariffInline]
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -49,6 +43,28 @@ class VideoAdmin(admin.ModelAdmin):
         queryset.update(status='2')
 
     make_activation.short_description = 'Активировать'
+
+    def get_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
+                    'video', 'category', 'type', 'status', 'is_top', 'image', 'owner']
+        else:
+            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
+                    'video', 'category', 'type', 'image', 'owner', ]
+
+    def get_inline_instances(self, request, obj=None):
+        if request.user.is_superuser:
+            return [inline(self.model, self.admin_site) for inline in self.inlines]
+        return []
+
+    def save_model(self, request, obj, form, change):
+        if request.user.is_superuser:
+
+            super().save_model(request, obj, form, change)
+        else:
+            obj.status = '3'
+            obj.is_active = False
+            super().save_model(request, obj, form, change)
 
 
 class CategoryAdmin(admin.ModelAdmin):
