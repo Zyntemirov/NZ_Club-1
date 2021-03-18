@@ -33,7 +33,7 @@ class VideosView(viewsets.generics.ListAPIView):
     # pagination_class = MyPagination
 
     def get_queryset(self):
-        user = get_user_model().objects.get(id=self.kwargs['user_id'])
+        user = self.request.user
         if user:
             queryset = Video.objects.filter(Q(is_top=False) | Q(views__in=[user])).order_by(
                 'create_at').reverse().distinct()
