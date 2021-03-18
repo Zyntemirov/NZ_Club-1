@@ -190,7 +190,7 @@ class TokenPairObtainSerializer(serializers.Serializer):
         return data
 
 
-class TokenRefreshSerializer(BaseRefreshSerializer):
+class TokenPairRefreshSerializer(BaseRefreshSerializer):
     def create(self, validated_data):
         pass
 

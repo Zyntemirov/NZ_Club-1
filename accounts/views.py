@@ -200,4 +200,4 @@ class TokenObtainPairView(TokenViewBase):
 
 
 class TokenRefreshView(TokenViewBase):
-    serializer_class = TokenRefreshSerializer
+    serializer_class = TokenPairRefreshSerializer

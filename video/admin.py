@@ -22,17 +22,6 @@ class TariffInline(admin.TabularInline):
         return True
 
 
-from django import forms
-
-
-class MyAdminFormSet(BaseModelFormSet):
-    pass
-
-
-class MyAdminForm(forms.ModelForm):
-    pass
-
-
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     list_display = ['owner', 'title', 'category', 'status', 'is_active']

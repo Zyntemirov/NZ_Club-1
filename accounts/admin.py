@@ -9,6 +9,11 @@ class UserProfileInline(admin.StackedInline):
     model = userProfile
     can_delete = False
 
+    def get_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ['agent', 'gender', 'region', 'view_count', 'balance', 'withdrawn_balance', 'image', 'birth_date']
+        return ['agent', 'gender', 'region', 'image', 'birth_date']
+
 
 class UserAdmin(BaseUserAdmin):
     fieldsets = (
@@ -27,6 +32,11 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('username', 'email')
     ordering = ('email',)
     inlines = (UserProfileInline,)
+
+    def get_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ['phone', 'email', 'first_name', 'last_name', 'is_staff']
+        return ['phone', 'email', 'first_name', 'last_name']
 
 
 admin.site.register(User, UserAdmin)
