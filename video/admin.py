@@ -1,6 +1,8 @@
 from django.contrib import admin
 
 # Register your models here.
+from django.forms.models import BaseModelFormSet
+
 from video.models import *
 
 
@@ -20,6 +22,17 @@ class TariffInline(admin.TabularInline):
         return True
 
 
+from django import forms
+
+
+class MyAdminFormSet(BaseModelFormSet):
+    pass
+
+
+class MyAdminForm(forms.ModelForm):
+    pass
+
+
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     list_display = ['owner', 'title', 'category', 'status', 'is_active']
@@ -30,7 +43,7 @@ class VideoAdmin(admin.ModelAdmin):
     list_per_page = 50
     autocomplete_fields = ['owner', ]
     list_select_related = ['owner']
-    list_editable = ['status', ]
+    # list_editable = ['status', ]
     inlines = [TariffInline]
 
     def get_queryset(self, request):
@@ -47,7 +60,7 @@ class VideoAdmin(admin.ModelAdmin):
     def get_fields(self, request, obj=None):
         if request.user.is_superuser:
             return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
-                    'video', 'category', 'type', 'status', 'is_top', 'image', 'owner']
+                    'video', 'category', 'type', 'is_top', 'image', 'owner', 'status']
         else:
             return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
                     'video', 'category', 'type', 'image', 'owner', ]
@@ -59,7 +72,6 @@ class VideoAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if request.user.is_superuser:
-
             super().save_model(request, obj, form, change)
         else:
             obj.status = '3'

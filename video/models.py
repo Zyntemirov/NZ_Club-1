@@ -83,6 +83,13 @@ class Video(models.Model):
         except:
             pass
 
+        if self.status == '1':
+            self.is_active = False
+        if self.status == '2':
+            self.is_active = True
+        if self.status == '3':
+            self.is_active = False
+
         super(Video, self).save(*args, **kwargs)
         img = Image.open(self.image)
         width, height = img.size
