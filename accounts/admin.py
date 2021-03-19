@@ -63,4 +63,3 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(User, UserAdmin)
 admin.site.site_header = "Nz Club"
 
-admin.site.register(userProfile)
