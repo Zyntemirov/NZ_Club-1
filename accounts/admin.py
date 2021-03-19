@@ -4,7 +4,6 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 
-# Register your models here.
 class UserProfileInline(admin.StackedInline):
     model = userProfile
     can_delete = False
@@ -16,28 +15,52 @@ class UserProfileInline(admin.StackedInline):
 
 
 class UserAdmin(BaseUserAdmin):
+    list_display = ['phone', 'username', 'is_active']
+    inlines = (UserProfileInline,)
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
-                                       'groups', 'user_permissions')}),
-        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+        (None, {'fields': ('phone', 'username', 'password')}),
+        (_('Permissions'), {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups'),
+        }),
+    )
+    fieldsets_subadmin = (
+        (None, {'fields': ('phone', 'username', 'password')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'groups'),
+            'fields': ('phone', 'username', 'password1', 'password2'),
+        }),
+        (_('Permissions'), {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups'),
         }),
     )
-    list_display = ('username', 'email', 'date_joined', 'is_active')
-    search_fields = ('username', 'email')
-    ordering = ('email',)
-    inlines = (UserProfileInline,)
+    add_fieldsets_subadmin = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('phone', 'username', 'password1', 'password2'),
+        }),
+    )
 
-    def get_fields(self, request, obj=None):
+    def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser:
-            return ['phone', 'email', 'first_name', 'last_name', 'is_staff']
-        return ['phone', 'email', 'first_name', 'last_name']
+            if not obj:
+                return self.add_fieldsets
+            return self.fieldsets
+        else:
+            if not obj:
+                return self.add_fieldsets_subadmin
+            return self.fieldsets_subadmin
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user_profile = userProfile.objects.get(user=request.user)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(profile__region=user_profile.region)
 
 
 admin.site.register(User, UserAdmin)
 admin.site.site_header = "Nz Club"
+
+admin.site.register(userProfile)

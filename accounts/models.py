@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 
 
 class User(AbstractUser):
-    phone = models.CharField(verbose_name=_('phone number'),
+    phone = models.CharField(verbose_name=_('Телефон'),
                              max_length=12,
                              null=True, unique=True, validators=[
             RegexValidator(regex=r'^996\d{9}$', message=_('Pass valid phone number'))
@@ -17,6 +17,15 @@ class User(AbstractUser):
     otp = models.CharField(verbose_name=_('SMS code'), max_length=4)
 
     USERNAME_FIELD = 'phone'
+    REQUIRED_FIELDS = ['username']
+
+    def save(self, *args, **kwargs):
+        try:
+            if not self.pk:
+                userProfile.objects.create(user=self)
+        except:
+            pass
+        return super(User, self).save(*args, **kwargs)
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)
@@ -49,6 +58,7 @@ class userProfile(models.Model):
     birth_date = models.DateField(default=datetime.now, verbose_name="День рождения")
     date_joined = models.DateTimeField(auto_now_add=True, verbose_name="Дата вступления")
     updated_on = models.DateTimeField(auto_now=True, verbose_name="Обновление")
+
     class Meta:
         verbose_name = _("Аккаунт профиль")
         verbose_name_plural = _("Аккаунт профиль")
