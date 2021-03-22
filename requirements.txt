@@ -24,6 +24,7 @@ django-templated-mail==1.1.1
 django-timezone-field==4.1.1
 djangorestframework==3.11.0
 djangorestframework-simplejwt==4.4.0
+djangorestframework-xml==2.0.0
 djoser==2.0.3
 drf-yasg==1.17.1
 fcm-django==0.3.4
