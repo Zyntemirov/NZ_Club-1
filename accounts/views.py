@@ -1,10 +1,14 @@
 from random import randint, choices
 from string import ascii_letters
 
+from django.db.models import F
+from rest_framework_xml.parsers import XMLParser
+from .renders import MyXMLRenderer
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.generics import *
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenViewBase
 
 from .models import User
@@ -201,3 +205,40 @@ class TokenObtainPairView(TokenViewBase):
 
 class TokenRefreshView(TokenViewBase):
     serializer_class = TokenPairRefreshSerializer
+
+
+class CheckPaymentView(GenericAPIView):
+    parser_classes = [XMLParser]
+    renderer_classes = [MyXMLRenderer]
+
+    def get(self, request, *args, **kwargs):
+        command = request.query_params.get('command', '')
+        phone = request.query_params.get('account', '')
+        if command == 'check':
+            try:
+                user = User.objects.get(phone=phone)
+                return Response({'result': 0, 'account': user.username})
+            except User.DoesNotExist:
+                return Response({'result': 5})
+        return Response({'result': 'Command is not correct'})
+
+
+class PayPaymentView(GenericAPIView):
+    parser_classes = [XMLParser]
+    renderer_classes = [MyXMLRenderer]
+
+    def get(self, request, format=None):
+        command = request.query_params.get('command', '')
+        phone = request.query_params.get('account', '')
+        sum = float(request.query_params.get('sum', ''))
+        if command == 'pay':
+            try:
+                user = User.objects.get(phone=phone)
+                user_profile = userProfile.objects.get(user=user)
+                user_profile.balance = F('balance') + (sum)
+                print(user_profile.balance)
+                user_profile.save()
+                return Response({'result': 0})
+            except User.DoesNotExist:
+                return Response({'result': 5})
+        return Response({'result': 'Command is not correct'})

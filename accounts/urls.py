@@ -16,4 +16,8 @@ urlpatterns = [
     path('activation/', UserActivationView.as_view(), name='user_activation'),
     path('password_reset/', RequestResetPasswordView.as_view(), name='password_reset'),
     path('set_new_password/', SetNewPasswordView.as_view(), name='set_new_password'),
+
+    # PAYMENT
+    path('pay24/check/', CheckPaymentView.as_view(), name='payment_check'),
+    path('pay24/pay/', PayPaymentView.as_view(), name='payment_pay'),
 ]
