@@ -51,6 +51,7 @@ class FcmCreateSerializer(serializers.ModelSerializer):
 
 ############################## USER AUTHORIZATION #########################
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
@@ -66,7 +67,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         _user = get_user_model()
-        user = _user.objects.create_user(**validated_data)
+        phone = validated_data.get('phone', '')
+        username = validated_data.get('username', '')
+        password = validated_data.get('password', '')
+        user = _user.objects.create_user(phone=phone, username=username, password=password)
         user.is_active = False
         user.save()
         return user

@@ -19,9 +19,8 @@ from django.utils.encoding import force_text
 from rest_framework.response import Response
 from rest_framework import status
 from fcm_django.models import FCMDevice
-
-# Create your views here.
 from .utils import send_message_code
+from datetime import date
 
 
 class UserProfileListCreateView(ListAPIView):
@@ -139,10 +138,17 @@ class RegisterView(GenericAPIView):
         code = str(randint(1000, 9999))
         id = f'{randint(1000, 9999)}{code}{"".join(choices(ascii_letters, k=4))}'
         phone = self.request.data.get('phone', '')
+        birth_date = (self.request.data.get('birth_date', '')).split('-')
+        int_time = [int(i) for i in birth_date]
+        date_time = date(int_time[0], int_time[1], int_time[2])
+        print(type(date_time))
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save(otp=code)
             sms_resp = send_message_code(id, code, phone)
+            user_profile = userProfile.objects.get(user=User.objects.get(phone=phone))
+            user_profile.birth_date = date_time
+            user_profile.save()
             return Response({'phone': serializer.data.get('phone'), 'message': sms_resp},
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
