@@ -17,9 +17,6 @@ class CashBox(models.Model):
         verbose_name = _("Касса")
         verbose_name_plural = _("Касса")
 
-    def __str__(self):
-        return self.method
-
 
 class Transfer(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cashbox_sender',
@@ -35,9 +32,6 @@ class Transfer(models.Model):
         verbose_name = _("Перевод")
         verbose_name_plural = _("Переводы")
 
-    def __str__(self):
-        return self.receiver
-
 
 class PromoCode(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='promo_codes',
@@ -50,4 +44,4 @@ class PromoCode(models.Model):
         verbose_name_plural = _("Промо коды")
 
     def __str__(self):
-        return self.user or self.code
+        return str(self.code)

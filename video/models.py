@@ -208,9 +208,6 @@ class ViewBanner(models.Model):
         verbose_name = _("Просмотр история (Баннер)")
         verbose_name_plural = _("Просмотр истории (Баннер)")
 
-    def __str__(self):
-        return f"{self.user} {self.banner}"
-
 
 class ViewHistory(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='histories',
