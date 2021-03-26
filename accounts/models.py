@@ -65,3 +65,29 @@ class userProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Withdrawal(models.Model):
+    phone_regex_kg = RegexValidator(regex=r'^996\d{9}$',
+                                    message=_('Phone number must be in the format: 996XXX123456.'))
+    STATUS_CHOICES = (
+        ('unprocessed', _('unprocessed')),
+        ('successful', _('success')),
+        ('error', _('error')),
+    )
+    METHOD_CHOICES = (
+        ('o_money', _('O! Money')),
+        ('balance', _('Balance')),
+        ('mega_pay', _('Mega Pay')),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
+    amount = models.IntegerField(verbose_name=_('amount'), max_length=8)
+    method = models.CharField(_('method'), max_length=20, choices=METHOD_CHOICES)
+    batch = models.CharField(_('batch'), max_length=256)
+    status = models.CharField(_('status'), max_length=20, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0])
+    created = models.DateTimeField(_('created'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Withdrawal')
+        verbose_name_plural = _('Withdrawals')
+        constraints = (models.CheckConstraint(check=models.Q(amount__gt=0), name='positive_withdrawal_amount'),)
