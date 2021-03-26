@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from django.contrib import auth
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import userProfile, User
+from .models import userProfile, User, Withdrawal
 from django.contrib.auth import get_user_model, authenticate
 from fcm_django.models import FCMDevice
 from django.utils.translation import gettext_lazy as _
@@ -200,3 +200,32 @@ class TokenPairRefreshSerializer(BaseRefreshSerializer):
 
     def update(self, instance, validated_data):
         pass
+
+
+class WithdrawalListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Withdrawal
+        fields = ['amount', 'created']
+
+
+class WithdrawalBulkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Withdrawal
+        fields = ['id', 'amount', 'requisite', 'method']
+
+
+class WithdrawalBulkUpdateSerializer(serializers.Serializer):
+    successful = serializers.ListSerializer(child=serializers.IntegerField(), required=False)
+    error = serializers.ListSerializer(child=serializers.IntegerField(), required=False)
+
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
+
+class WithdrawalCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Withdrawal
+        fields = ['amount', 'requisite', 'method']

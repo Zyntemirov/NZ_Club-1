@@ -1,6 +1,7 @@
 from random import randint, choices
 from string import ascii_letters
 
+from django.db import transaction
 from django.db.models import F
 from rest_framework_xml.parsers import XMLParser
 from .renders import MyXMLRenderer
@@ -21,6 +22,7 @@ from rest_framework import status
 from fcm_django.models import FCMDevice
 from .utils import send_message_code
 from datetime import date
+from django.utils.translation import gettext_lazy as _
 
 
 class UserProfileListCreateView(ListAPIView):
@@ -248,3 +250,58 @@ class PayPaymentView(GenericAPIView):
             except User.DoesNotExist:
                 return Response({'result': 5})
         return Response({'result': 'Command is not correct'})
+
+
+class WithdrawalView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    # fiter=None
+
+    def get_serializer_class(self):
+        return WithdrawalListSerializer if self.request.method == 'GET' else WithdrawalCreateSerializer
+
+    def get_queryset(self):
+        return self.request.user.withdrawal_set.filter(status='successful')
+
+    def create(self, request, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                user = User.objects.select_for_update().get(id=request.user.id)
+                user_profile = userProfile.objects.get(user=user)
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save(user=user)
+                user_profile.balance -= self.validated_data['amount']
+                user_profile.withdrawn_balance += self.validated_data['amount']
+                user_profile.save()
+                headers = self.get_success_headers(serializer.data)
+                return Response(serializer.data, status.HTTP_201_CREATED, headers=headers)
+        except InterruptedError:
+            return Response({'error': _('Insufficient funds')}, status.HTTP_409_CONFLICT)
+        except Exception as e:
+            return Response({'error': e.args}, status.HTTP_400_BAD_REQUEST)
+
+
+class WithdrawalBulkView(GenericAPIView):
+    # permission_classes = IsOurBot
+    pagination_class = None
+
+    def get_serializer_class(self):
+        return WithdrawalBulkSerializer if self.request.method == 'POST' else WithdrawalBulkUpdateSerializer
+
+    def get_queryset(self):
+        return Withdrawal.objects.filter(status='unprocessed')
+
+    def post(self, request, *args, **kwargs):
+        data = self.get_serializer(self.get_queryset(), many=True).data
+        return Response(data, status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        this_sz = self.get_serializer(data=request.data)
+        this_sz.is_valid(raise_exception=True)
+        # process_withdrawal.delay(this_srz.validated_data['error'], status='error')
+        # process_withdrawal.delay(this_srz.validated_data['successful'], status='successful')
+
+        return Response({
+            'message': _('IDs successfully processed')
+        }, status.HTTP_200_OK)
