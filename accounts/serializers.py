@@ -10,7 +10,8 @@ from django.contrib.auth import get_user_model, authenticate
 from fcm_django.models import FCMDevice
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import (AuthenticationFailed, ValidationError)
-from rest_framework_simplejwt.serializers import (PasswordField, TokenRefreshSerializer as BaseRefreshSerializer)
+from rest_framework_simplejwt.serializers import (PasswordField, TokenRefreshSerializer as BaseRefreshSerializer,
+                                                  user_eligible_for_login, login_rule)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -174,23 +175,15 @@ class TokenPairObtainSerializer(serializers.Serializer):
         password = attrs.get('password', '')
         request = self.context.get('request')
         user = authenticate(request=request, phone=phone, password=password)
-        #
-        # if not getattr(login_rule, user_eligible_for_login)(user):
-        #     raise AuthenticationFailed(
-        #         self.error_messages['no_active_account'],
-        #         'no_active_account',
-        #     )
-        if user is None:
-            raise AuthenticationFailed(
-                self.error_messages['no_active_account'],
-                'no_active_account', )
-
+        if not getattr(login_rule, user_eligible_for_login)(user):
+            raise AuthenticationFailed(self.error_messages['no_active_account'],
+                                       'no_active_account')
         refresh = self.get_token(user)
-        data = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }
-        update_last_login(None, user)
+        data = {'refresh': str(refresh),
+                'access': str(refresh.access_token)
+                }
+        if api_settings.UPDATE_LAST_LOGIN:
+            update_last_login(None, user)
         return data
 
 
