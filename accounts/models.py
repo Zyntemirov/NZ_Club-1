@@ -81,7 +81,7 @@ class Withdrawal(models.Model):
         ('mega_pay', _('Mega Pay')),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('user'))
-    amount = models.IntegerField(verbose_name=_('amount'), max_length=8)
+    amount = models.IntegerField(verbose_name=_('amount'))
     method = models.CharField(_('method'), max_length=20, choices=METHOD_CHOICES)
     requisite = models.CharField(_('Requisite'), validators=[phone_regex_kg], max_length=12)
     batch = models.CharField(_('batch'), max_length=256)

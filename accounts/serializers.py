@@ -195,20 +195,29 @@ class TokenPairRefreshSerializer(BaseRefreshSerializer):
         pass
 
 
-class WithdrawalListSerializer(serializers.ModelSerializer):
+class WithdrawalBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Withdrawal
-        fields = ['amount', 'created']
+        fields = ['id', 'amount', 'requisite', 'method']
 
 
-class WithdrawalBulkSerializer(serializers.ModelSerializer):
+class WithdrawalListSerializer(WithdrawalBaseSerializer):
+    pass
+
+
+class WithdrawalCreateSerializer(serializers.ModelSerializer):
+    class Meta(WithdrawalBaseSerializer.Meta):
+        fields = WithdrawalBaseSerializer.Meta.fields + ['user']
+
+
+class WithdrawBulkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Withdrawal
         fields = ['id', 'amount', 'requisite', 'method']
 
 
 class WithdrawalBulkUpdateSerializer(serializers.Serializer):
-    successful = serializers.ListSerializer(child=serializers.IntegerField(), required=False)
+    successful = serializers.ListField(child=serializers.IntegerField(), required=False)
     error = serializers.ListSerializer(child=serializers.IntegerField(), required=False)
 
     def create(self, validated_data):
@@ -216,9 +225,3 @@ class WithdrawalBulkUpdateSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         pass
-
-
-class WithdrawalCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Withdrawal
-        fields = ['amount', 'requisite', 'method']

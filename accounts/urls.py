@@ -20,5 +20,5 @@ urlpatterns = [
     # PAYMENT
     path('pay24/check/', CheckPaymentView.as_view(), name='payment_check'),
     path('pay24/pay/', PayPaymentView.as_view(), name='payment_pay'),
-    # path('withdrawal/', WithdrawalView.as_view(), name='withdrawal'),
+    path('withdrawal/', WithdrawalView.as_view(), name='withdrawal'),
 ]
