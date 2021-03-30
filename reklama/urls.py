@@ -18,7 +18,7 @@ from django.conf.urls.static import static
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
-
+from accounts.views import WithdrawalBulkView
 # for swagger
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -47,6 +47,7 @@ urlpatterns = [
                   path('api/docs.json/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
                   path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
                   path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+                  path('api/v1/bot/withdrawal/', WithdrawalBulkView.as_view()),
               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
