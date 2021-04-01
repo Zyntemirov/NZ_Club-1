@@ -22,6 +22,13 @@ class TariffInline(admin.TabularInline):
         return True
 
 
+class MyVideo(Video):
+    class Meta:
+        verbose_name = "Видео для неактивных"
+        verbose_name_plural = "Видео для неактивных"
+        proxy = True
+
+
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     list_display = ['owner', 'title', 'category', 'status', 'is_active']
@@ -132,3 +139,5 @@ admin.site.register(Request, RequestAdmin)
 admin.site.register(Banner, BannerAdmin)
 admin.site.register(ViewBanner, ViewBannerAdmin)
 admin.site.register(VideoTraining, VideoTrainingAdmin)
+
+
