@@ -72,16 +72,12 @@ class Video(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        try:
-            if not self.pk:
-                devices = FCMDevice.objects.all()
-                devices.send_message(title="Новое видео🔥", body="Кликните сюда чтобы посмотреть видео " + self.title)
-
-            this = Video.objects.get(id=self.id)
-            if this.image != self.image:
-                this.image.delete()
-        except:
-            pass
+        # try:
+        #     this = Video.objects.get(id=self.id)
+        #     if this.image != self.image:
+        #         this.image.delete()
+        # except:
+        #     pass
 
         if self.status == '1':
             self.is_active = False
