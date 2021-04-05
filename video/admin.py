@@ -1,8 +1,4 @@
 from django.contrib import admin
-
-# Register your models here.
-from django.forms.models import BaseModelFormSet
-
 from video.models import *
 
 
