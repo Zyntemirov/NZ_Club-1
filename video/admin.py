@@ -1,9 +1,5 @@
 from django.contrib import admin
-
-# Register your models here.
 from django.db.models import Q
-from django.forms.models import BaseModelFormSet
-
 from accounts.models import User
 from video.models import *
 
@@ -22,13 +18,6 @@ class TariffInline(admin.TabularInline):
 
     def has_view_permission(self, request, obj=None):
         return True
-
-
-class MyVideo(Video):
-    class Meta:
-        verbose_name = "Видео для неактивных"
-        verbose_name_plural = "Видео для неактивных"
-        proxy = True
 
 
 @admin.register(Video)
@@ -70,6 +59,7 @@ class VideoAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if request.user.is_superuser:
+            # do push notif soon
             super().save_model(request, obj, form, change)
         else:
             obj.status = '3'
@@ -104,7 +94,7 @@ class MyVideoAdmin(admin.ModelAdmin):
     def get_fields(self, request, obj=None):
         if request.user.is_superuser:
             return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
-                    'video', 'category', 'type', 'is_top', 'image', 'owner', 'status']
+                    'video', 'category', 'type', 'is_top', 'image', 'owner']
         else:
             return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
                     'video', 'category', 'type', 'image', 'owner', ]
@@ -115,16 +105,9 @@ class MyVideoAdmin(admin.ModelAdmin):
         return []
 
     def save_model(self, request, obj, form, change):
-        if request.user.is_superuser:
-            if obj.id == None:
-                obj.status = '2'
-                obj.is_active = True
-                users = User.objects.filter(Q(profile_balance_lte=10) | Q(profile_withdrawn_balance=0))
-                devices = FCMDevice.objects.filter(user__in=users)
-                devices.send_message(title="Новое видео🔥", body="Кликните сюда чтобы посмотреть видео " + self.title)
-                super().save_model(request, obj, form, change)
-            else:
-                super().save_model(request, obj, form, change)
+        obj.status = '2'
+        obj.is_active = True
+        super().save_model(request, obj, form, change)
 
 
 class CategoryAdmin(admin.ModelAdmin):

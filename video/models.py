@@ -105,6 +105,13 @@ def delete_image(sender, instance, **kwargs):
     instance.image.delete(False)
 
 
+class MyVideo(Video):
+    class Meta:
+        verbose_name = "Видео для неактивных"
+        verbose_name_plural = "Видео для неактивных"
+        proxy = True
+
+
 class Tariff(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='tariffs', verbose_name="Ютуб ссылка")
     views = models.IntegerField(verbose_name="Просмотр")
