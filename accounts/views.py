@@ -301,3 +301,21 @@ class WithdrawalBulkView(GenericAPIView):
         process_withdrawal.delay(this_srz.vaidated_data['error'], status='error')
         process_withdrawal.delay(this_srz.vaidated_data['successful'], status='successful')
         return Response({'message': 'IDs successfully processed'}, status.HTTP_200_OK)
+
+
+class NotificationAPIView(GenericAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Notification
+
+    def get(self, request, *args, **kwargs):
+        queryset = Notification.objects.filter(user=request.user)
+        serializers = self.serializer_class(queryset, many=True, context={'request': request})
+        return Response(serializers.data, status.HTTP_200_OK)
+
+
+class NotificationDeleteView(GenericAPIView):
+    def delete(self, request, *args, **kwargs):
+        notification = Notification.objects.get(pk=kwargs['pk'])
+        notification.delete()
+        return Response({'detail': 'Удалено'}, status.HTTP_204_NO_CONTENT)

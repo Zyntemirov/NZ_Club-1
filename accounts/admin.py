@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import User, userProfile
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import ugettext_lazy as _
+from .models import Notification
 
 
 class UserProfileInline(admin.StackedInline):
@@ -61,5 +62,5 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(Notification)
 admin.site.site_header = "Nz Club"
-
