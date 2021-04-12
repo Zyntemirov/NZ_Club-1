@@ -42,6 +42,14 @@ class VideosView(viewsets.generics.ListAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class VideoDonateView(viewsets.generics.ListAPIView):
+    serializer_class = VideoSerializer
+
+    def get_queryset(self):
+        queryset = Video.objects.filter(status='2', type='3', is_active=True)
+        return queryset
+
+
 class VideoDetailView(viewsets.generics.RetrieveAPIView):
     serializer_class = VideoDetailSerializer
 

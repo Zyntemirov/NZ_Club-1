@@ -1,8 +1,6 @@
 from django.contrib import admin
-
-# Register your models here.
-from django.forms.models import BaseModelFormSet
-
+from django.db.models import Q
+from accounts.models import User
 from video.models import *
 
 
@@ -61,11 +59,55 @@ class VideoAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if request.user.is_superuser:
+            # do push notif soon
             super().save_model(request, obj, form, change)
         else:
             obj.status = '3'
             obj.is_active = False
             super().save_model(request, obj, form, change)
+
+
+@admin.register(MyVideo)
+class MyVideoAdmin(admin.ModelAdmin):
+    list_display = ['owner', 'title', 'category', 'status', 'is_active']
+    list_display_links = ['owner', 'title', 'category']
+    search_fields = ['title', 'text']
+    list_filter = ['owner__username']
+    exclude = ('favorites', 'views', 'is_active', 'watched_videos')
+    list_per_page = 50
+    autocomplete_fields = ['owner', ]
+    list_select_related = ['owner']
+    # list_editable = ['status', ]
+    inlines = [TariffInline]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(owner=request.user)
+
+    def make_activation(self, request, queryset):
+        queryset.update(status='2')
+
+    make_activation.short_description = 'Активировать'
+
+    def get_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
+                    'video', 'category', 'type', 'is_top', 'image', 'owner']
+        else:
+            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
+                    'video', 'category', 'type', 'image', 'owner', ]
+
+    def get_inline_instances(self, request, obj=None):
+        if request.user.is_superuser:
+            return [inline(self.model, self.admin_site) for inline in self.inlines]
+        return []
+
+    def save_model(self, request, obj, form, change):
+        obj.status = '2'
+        obj.is_active = True
+        super().save_model(request, obj, form, change)
 
 
 class CategoryAdmin(admin.ModelAdmin):

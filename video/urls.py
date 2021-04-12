@@ -14,6 +14,7 @@ urlpatterns = [
     path('video/<str:search>', VideoSearchView.as_view()),
     path('video_training', VideoTrainingView.as_view()),
     path('videos/by/me/', VideosView.as_view()),
+    path('videos/donate/', VideoDonateView.as_view()),
     path('videos/by/<int:category_id>', VideoByCategoryView.as_view()),
     path('videos/my/<int:owner_id>', VideoByOwnerView.as_view()),
     path('video/top/10/<int:user_id>', VideoTop10View.as_view()),
