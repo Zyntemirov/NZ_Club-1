@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from django.contrib import auth
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import userProfile, User, Withdrawal
+from .models import userProfile, User, Withdrawal, Notification
 from django.contrib.auth import get_user_model, authenticate
 from fcm_django.models import FCMDevice
 from django.utils.translation import gettext_lazy as _
@@ -225,3 +225,11 @@ class WithdrawalBulkUpdateSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         pass
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    video = serializers.SlugRelatedField(slug_field="title", read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = ['id', 'title', 'video', 'body', 'image', 'created']

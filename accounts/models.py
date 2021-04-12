@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from django_resized import ResizedImageField
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.validators import RegexValidator
 from django.db import models
@@ -92,3 +94,19 @@ class Withdrawal(models.Model):
         verbose_name = _('Withdrawal')
         verbose_name_plural = _('Withdrawals')
         constraints = (models.CheckConstraint(check=models.Q(amount__gt=0), name='positive_withdrawal_amount'),)
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="Пользователь", related_name="notifications",
+                             on_delete=models.CASCADE,
+                             null=True)
+    video = models.ForeignKey('video.Video', verbose_name="Видео", on_delete=models.CASCADE, null=True,
+                                blank=True)
+    title = models.CharField("Заголовок", max_length=150)
+    body = models.TextField("Тело")
+    image = ResizedImageField("Изображение", size=[150, 150], quality=100, upload_to='notifications/', blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"

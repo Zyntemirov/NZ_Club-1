@@ -3,7 +3,7 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from fcm_django.models import FCMDevice
 
-from accounts.models import User
+from accounts.models import User, Notification
 from .models import Video, MyVideo
 
 
@@ -15,6 +15,10 @@ def video_pre_save_receiver(sender, instance, *args, **kwargs):
                 old_instance.status == '1' or old_instance.status == '3') and instance.is_active == True and instance.status == '2':
             try:
                 devices = FCMDevice.objects.all()
+                Notification.objects.bulk_create(
+                    [Notification(user=device.user, title="Новое видео🔥", video=old_instance,
+                                  body="Кликните сюда чтобы посмотреть видео " + instance.title,
+                                  image=old_instance.image) for device in devices])
                 devices.send_message(title="Новое видео🔥",
                                      body="Кликните сюда чтобы посмотреть видео " + instance.title)
             except FCMDevice.DoesNotExist:
@@ -30,6 +34,10 @@ def my_video_post_save_receiver(sender, instance, created, *args, **kwargs):
                 devices = FCMDevice.objects.filter(user__in=users)
                 devices.send_message(title="Новое видео🔥",
                                      body="Кликните сюда чтобы посмотреть видео " + instance.title)
+                Notification.objects.bulk_create(
+                    [Notification(user=device.user, title="Новое видео🔥", video=instance,
+                                  body="Кликните сюда чтобы посмотреть видео " + instance.title,
+                                  image=instance.image) for device in devices])
             except:
                 pass
     else:
