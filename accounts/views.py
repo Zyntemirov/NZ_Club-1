@@ -35,7 +35,9 @@ class UserProfileDetailView(RetrieveUpdateAPIView):
         queryset = userProfile.objects.all()
         user_profile = get_object_or_404(queryset, user_id=kwargs['pk'])
         serializer = self.get_serializer(user_profile)
-        return Response({'data': serializer.data, 'phone': user_profile.user.phone}, status=status.HTTP_200_OK)
+        return Response(
+            {'data': serializer.data, 'phone': user_profile.user.phone},
+            status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         queryset = userProfile.objects.all()
@@ -144,11 +146,13 @@ class RegisterView(GenericAPIView):
         if serializer.is_valid():
             serializer.save(otp=code)
             sms_resp = send_message_code(id, code, phone)
-            user_profile = userProfile.objects.get(user=User.objects.get(phone=phone))
+            user_profile = userProfile.objects.get(
+                user=User.objects.get(phone=phone))
             user_profile.birth_date = date_time
             user_profile.save()
-            return Response({'phone': serializer.data.get('phone'), 'message': sms_resp},
-                            status=status.HTTP_201_CREATED)
+            return Response(
+                {'phone': serializer.data.get('phone'), 'message': sms_resp},
+                status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -163,11 +167,14 @@ class UserActivationView(GenericAPIView):
             if code == user.otp:
                 user.is_active = True
                 user.save()
-                return Response({'detail': 'User is successfully activated'}, status=status.HTTP_200_OK)
+                return Response({'detail': 'User is successfully activated'},
+                                status=status.HTTP_200_OK)
             else:
-                return Response({'detail': 'Code is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'detail': 'Code is incorrect'},
+                                status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({'detail': 'Enter code'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Enter code'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class RequestResetPasswordView(GenericAPIView):
@@ -187,10 +194,12 @@ class RequestResetPasswordView(GenericAPIView):
                                  'message': 'We sent you reset SMS. Please check the message and enter the code'},
                                 status=status.HTTP_200_OK)
             except User.DoesNotExist:
-                return Response({'detail': 'User with this phone number does not exists.'},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'detail': 'User with this phone number does not exists.'},
+                    status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({'detail': 'Enter phone number'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Enter phone number'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class SetNewPasswordView(GenericAPIView):
@@ -200,7 +209,8 @@ class SetNewPasswordView(GenericAPIView):
     def patch(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({'message': 'Password reset success'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Password reset success'},
+                        status=status.HTTP_200_OK)
 
 
 class TokenObtainPairView(TokenViewBase):
@@ -240,7 +250,13 @@ class PayPaymentView(GenericAPIView):
                 user = User.objects.get(phone=phone)
                 user_profile = userProfile.objects.get(user=user)
                 user_profile.balance = F('balance') + (sum)
-                print(user_profile.balance)
+                devices = FCMDevice.objects.filter(user=user)
+                devices.send_message(title="При пополнении счета",
+                                     body=f"Успешно пополено на сумму “{sum}” через Pay24.")
+                Notification.objects.create(user=user,
+                                            title="При пополнении счета",
+                                            body=f"Успешно пополено на сумму “{sum}” через Pay24.",
+                                            image=user_profile.image)
                 user_profile.save()
                 return Response({'result': 0})
             except User.DoesNotExist:
@@ -270,16 +286,21 @@ class WithdrawalView(ListCreateAPIView):
                 serializer = self.get_serializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 self.perform_create(serializer)
-                if user.profile.balance >= serializer.validated_data.get('amount'):
-                    user.profile.balance -= serializer.validated_data.get('amount')
-                    user.profile.withdrawn_balance += serializer.validated_data.get('amount')
+                if user.profile.balance >= serializer.validated_data.get(
+                        'amount'):
+                    user.profile.balance -= serializer.validated_data.get(
+                        'amount')
+                    user.profile.withdrawn_balance += serializer.validated_data.get(
+                        'amount')
                     user.profile.save()
                     headers = self.get_success_headers(serializer.data)
-                    return Response(serializer.data, status.HTTP_201_CREATED, headers=headers)
+                    return Response(serializer.data, status.HTTP_201_CREATED,
+                                    headers=headers)
                 else:
                     return Response({'error': 'Your balance is not enough'})
         except InterruptedError as e:
-            return Response({'error': ('Insufficient funds')}, status.HTTP_409_CONFLICT)
+            return Response({'error': ('Insufficient funds')},
+                            status.HTTP_409_CONFLICT)
         except Exception as e:
             return Response({'error': e.args}, status.HTTP_400_BAD_REQUEST)
 
@@ -298,9 +319,12 @@ class WithdrawalBulkView(GenericAPIView):
     def put(self, request):
         this_srz = self.get_serializer(data=request.data)
         this_srz.is_valid(raise_exception=True)
-        process_withdrawal.delay(this_srz.vaidated_data['error'], status='error')
-        process_withdrawal.delay(this_srz.vaidated_data['successful'], status='successful')
-        return Response({'message': 'IDs successfully processed'}, status.HTTP_200_OK)
+        process_withdrawal.delay(this_srz.vaidated_data['error'],
+                                 status='error')
+        process_withdrawal.delay(this_srz.vaidated_data['successful'],
+                                 status='successful')
+        return Response({'message': 'IDs successfully processed'},
+                        status.HTTP_200_OK)
 
 
 class NotificationAPIView(GenericAPIView):
@@ -310,7 +334,8 @@ class NotificationAPIView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         queryset = Notification.objects.filter(user=request.user)
-        serializers = self.serializer_class(queryset, many=True, context={'request': request})
+        serializers = self.serializer_class(queryset, many=True,
+                                            context={'request': request})
         return Response(serializers.data, status.HTTP_200_OK)
 
 
