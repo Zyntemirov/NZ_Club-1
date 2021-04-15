@@ -46,15 +46,19 @@ class VideoAdmin(admin.ModelAdmin):
 
     def get_fields(self, request, obj=None):
         if request.user.is_superuser:
-            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
-                    'video', 'category', 'type', 'is_top', 'image', 'owner', 'status']
+            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3',
+                    'instagram', 'facebook', 'web_site',
+                    'video', 'category', 'type', 'is_top', 'image', 'owner',
+                    'status']
         else:
-            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
+            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3',
+                    'instagram', 'facebook', 'web_site',
                     'video', 'category', 'type', 'image', 'owner', ]
 
     def get_inline_instances(self, request, obj=None):
         if request.user.is_superuser:
-            return [inline(self.model, self.admin_site) for inline in self.inlines]
+            return [inline(self.model, self.admin_site) for inline in
+                    self.inlines]
         return []
 
     def save_model(self, request, obj, form, change):
@@ -93,15 +97,18 @@ class MyVideoAdmin(admin.ModelAdmin):
 
     def get_fields(self, request, obj=None):
         if request.user.is_superuser:
-            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
+            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3',
+                    'instagram', 'facebook', 'web_site',
                     'video', 'category', 'type', 'is_top', 'image', 'owner']
         else:
-            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site',
+            return ['title', 'text', 'phone_1', 'phone_2', 'phone_3',
+                    'instagram', 'facebook', 'web_site',
                     'video', 'category', 'type', 'image', 'owner', ]
 
     def get_inline_instances(self, request, obj=None):
         if request.user.is_superuser:
-            return [inline(self.model, self.admin_site) for inline in self.inlines]
+            return [inline(self.model, self.admin_site) for inline in
+                    self.inlines]
         return []
 
     def save_model(self, request, obj, form, change):
@@ -174,3 +181,4 @@ admin.site.register(Request, RequestAdmin)
 admin.site.register(Banner, BannerAdmin)
 admin.site.register(ViewBanner, ViewBannerAdmin)
 admin.site.register(VideoTraining, VideoTrainingAdmin)
+admin.site.register(ComplaintBanner)

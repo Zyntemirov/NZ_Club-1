@@ -50,7 +50,8 @@ class FilterReviewSerializer(serializers.ListSerializer):
 
 class RecursiveSerializer(serializers.Serializer):
     def to_representation(self, instance):
-        serializer = self.parent.parent.__class__(instance, context=self.context)
+        serializer = self.parent.parent.__class__(instance,
+                                                  context=self.context)
         return serializer.data
 
 
@@ -146,9 +147,11 @@ class VideoDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Video
-        fields = ['id', 'title', 'text', 'phone_1', 'phone_2', 'phone_3', 'instagram', 'facebook', 'web_site', 'video',
+        fields = ['id', 'title', 'text', 'phone_1', 'phone_2', 'phone_3',
+                  'instagram', 'facebook', 'web_site', 'video',
                   'create_at',
-                  'owner', 'views', 'favorites', 'comments', 'is_favorite', 'last_comment']
+                  'owner', 'views', 'favorites', 'comments', 'is_favorite',
+                  'last_comment']
 
 
 class ViewsDetailVideoSerializer(serializers.ModelSerializer):
@@ -198,7 +201,29 @@ class BannerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Banner
-        fields = ['id', 'video', 'image', 'block', 'views']
+        fields = ['id', 'video', 'url', 'image', 'block', 'views']
+
+
+class CreateLikeBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LikeBanner
+        fields = ['banner']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        like_banner = LikeBanner.objects.create(user=user, **validated_data)
+        return like_banner
+
+
+class CreateComplaintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComplaintBanner
+        fields = ['type', 'text']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        complaint_banner = ComplaintBanner(user=user, **validated_data)
+        return complaint_banner
 
 
 class CreateRequestSerializer(serializers.ModelSerializer):
