@@ -344,3 +344,12 @@ class NotificationDeleteView(GenericAPIView):
         notification = Notification.objects.get(pk=kwargs['pk'])
         notification.delete()
         return Response({'detail': 'Удалено'}, status.HTTP_204_NO_CONTENT)
+
+
+class RegionListView(APIView):
+    permission_classes = []
+
+    def get(self, request, *args, **kwargs):
+        region_list = {'1': 'Ош', '2': 'Ысык-Кол', '3': 'Жалал-Абад',
+                       '4': 'Талас', '5': 'Баткен', '6': 'Нарын', '7': 'Чуй'}
+        return Response(region_list)
