@@ -35,7 +35,8 @@ class VideosView(viewsets.generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            queryset = Video.objects.filter(Q(is_top=False) | Q(views__in=[user])).order_by(
+            queryset = Video.objects.filter(
+                Q(is_top=False) | Q(views__in=[user])).order_by(
                 'create_at').reverse().distinct()
             return queryset
         else:
@@ -56,7 +57,8 @@ class VideoDetailView(viewsets.generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         queryset = Video.objects.all()
         video_detail = get_object_or_404(queryset, id=kwargs['id'])
-        serializer = VideoDetailSerializer(video_detail, context={'request': request})
+        serializer = VideoDetailSerializer(video_detail,
+                                           context={'request': request})
         return Response(serializer.data)
 
 
@@ -66,7 +68,8 @@ class ViewsDetailVideoView(viewsets.generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         queryset = Video.objects.all()
         views = get_object_or_404(queryset, id=self.kwargs['id'])
-        serializer = ViewsDetailVideoSerializer(views, context={'request': request})
+        serializer = ViewsDetailVideoSerializer(views,
+                                                context={'request': request})
         return Response(serializer.data['views'])
 
 
@@ -77,7 +80,8 @@ class CommentsDetailVideoView(viewsets.generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         queryset = Video.objects.all()
         comments = get_object_or_404(queryset, id=self.kwargs['id'])
-        serializer = CommentsDetailVideoSerializer(comments, context={'request': request})
+        serializer = CommentsDetailVideoSerializer(comments,
+                                                   context={'request': request})
         return Response(serializer.data['comments'])
 
 
@@ -87,7 +91,8 @@ class VideoTop10View(viewsets.generics.ListAPIView):
     def get_queryset(self):
         user = get_user_model().objects.get(id=self.kwargs['user_id'])
         if user:
-            queryset = Video.objects.filter(is_top=True).exclude(views__in=[user]).order_by('create_at')[:10]
+            queryset = Video.objects.filter(is_top=True).exclude(
+                views__in=[user]).order_by('create_at')[:10]
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -97,7 +102,8 @@ class VideoByCategoryView(viewsets.generics.ListAPIView):
     serializer_class = VideoSerializer
 
     def get_queryset(self):
-        queryset = Video.objects.filter(category=self.kwargs['category_id']).order_by('create_at').reverse()
+        queryset = Video.objects.filter(
+            category=self.kwargs['category_id']).order_by('create_at').reverse()
         return queryset
 
 
@@ -247,9 +253,11 @@ class UpVideoInSevenDayView(viewsets.generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
-        video = Video.objects.get(id=request.data['video_id'], owner=request.data['owner_id'])
+        video = Video.objects.get(id=request.data['video_id'],
+                                  owner=request.data['owner_id'])
         user = get_user_model().objects.get(id=request.data['owner_id'])
-        if user and video and (video.create_at.date() + timedelta(days=2)) <= datetime.now().date():
+        if user and video and (video.create_at.date() + timedelta(
+                days=2)) <= datetime.now().date():
             video.create_at = datetime.now()
             video.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -265,4 +273,14 @@ class CreateCommentView(viewsets.generics.CreateAPIView):
 
 class CreateRequestView(viewsets.generics.CreateAPIView):
     serializer_class = CreateRequestSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class CreateLikeBannerView(viewsets.generics.CreateAPIView):
+    serializer_class = CreateLikeBannerSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class CreateComplaintView(viewsets.generics.CreateAPIView):
+    serializer_class = CreateComplaintSerializer
     permission_classes = [IsAuthenticated]

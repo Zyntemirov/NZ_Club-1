@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
+
+from accounts.models import Notification
 from .serializers import *
 from .models import *
 from rest_framework.generics import *
@@ -63,9 +65,13 @@ class CreateTransferView(viewsets.generics.UpdateAPIView):
 
             receiver = get_user_model().objects.get(username=request.data['username'])
             device = FCMDevice.objects.filter(user=receiver)
-            device.send_message(title="Перевод💰", body="Пользователь " + user.username + " отправил(а) вам " + str(request.data['amount']) + " баллов. Введите код чтобы получить перевод.",
+            device.send_message(title="Перевод💰", body="Пользователь " + user.username + " отправил(а) вам " + str(
+                request.data['amount']) + " баллов. Введите код чтобы получить перевод.",
                                 icon=settings.GLOBAL_HOST + profile.image.url)
-
+            Notification.objects.create(user=user, title="Перевод💰",
+                                        body="Пользователь " + user.username + " отправил(а) вам " + str(
+                                            request.data['amount']) + " баллов. Введите код чтобы получить перевод.",
+                                        image=settings.GLOBAL_HOST + profile.image.url)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)

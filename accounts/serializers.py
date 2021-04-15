@@ -3,6 +3,8 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from django.contrib import auth
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import userProfile, User, Withdrawal, Notification
@@ -10,14 +12,17 @@ from django.contrib.auth import get_user_model, authenticate
 from fcm_django.models import FCMDevice
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import (AuthenticationFailed, ValidationError)
-from rest_framework_simplejwt.serializers import (PasswordField, TokenRefreshSerializer as BaseRefreshSerializer,
-                                                  user_eligible_for_login, login_rule)
+from rest_framework_simplejwt.serializers import (PasswordField,
+                                                  TokenRefreshSerializer as BaseRefreshSerializer,
+                                                  user_eligible_for_login,
+                                                  login_rule)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = userProfile
-        fields = ['id', 'agent', 'gender', 'region', 'birth_date', 'image', 'balance', 'withdrawn_balance',
+        fields = ['id', 'agent', 'gender', 'region', 'birth_date', 'image',
+                  'balance', 'withdrawn_balance',
                   'view_count', 'image']
 
 
@@ -71,7 +76,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         phone = validated_data.get('phone', '')
         username = validated_data.get('username', '')
         password = validated_data.get('password', '')
-        user = _user.objects.create_user(phone=phone, username=username, password=password)
+        user = _user.objects.create_user(phone=phone, username=username,
+                                         password=password)
         user.is_active = False
         user.save()
         return user
@@ -118,8 +124,10 @@ class LoginSerializer(serializers.ModelSerializer):
 class SetNewPasswordSerializer(serializers.Serializer):
     phone = serializers.CharField(required=True)
     code = serializers.CharField(max_length=4, required=True)
-    password = serializers.CharField(write_only=True, min_length=1, required=True)
-    password2 = serializers.CharField(write_only=True, min_length=1, required=True)
+    password = serializers.CharField(write_only=True, min_length=1,
+                                     required=True)
+    password2 = serializers.CharField(write_only=True, min_length=1,
+                                      required=True)
 
     class Meta:
         fields = ['phone', 'code', 'password', 'password2']
@@ -145,7 +153,8 @@ class SetNewPasswordSerializer(serializers.Serializer):
 
 class TokenPairObtainSerializer(serializers.Serializer):
     default_error_messages = {
-        'no_active_account': _('No active account found with the given credentials')
+        'no_active_account': _(
+            'No active account found with the given credentials')
     }
     phone = serializers.CharField(required=False)
     password = PasswordField()
@@ -217,8 +226,10 @@ class WithdrawBulkSerializer(serializers.ModelSerializer):
 
 
 class WithdrawalBulkUpdateSerializer(serializers.Serializer):
-    successful = serializers.ListField(child=serializers.IntegerField(), required=False)
-    error = serializers.ListSerializer(child=serializers.IntegerField(), required=False)
+    successful = serializers.ListField(child=serializers.IntegerField(),
+                                       required=False)
+    error = serializers.ListSerializer(child=serializers.IntegerField(),
+                                       required=False)
 
     def create(self, validated_data):
         pass
@@ -233,3 +244,4 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ['id', 'title', 'video', 'body', 'image', 'created']
+

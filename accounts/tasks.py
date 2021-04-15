@@ -1,6 +1,8 @@
 from celery import shared_task
 from django.utils.timezone import now
-from .models import User, Withdrawal
+from fcm_django.models import FCMDevice
+
+from .models import User, Withdrawal, Notification
 import datetime
 
 current_time = datetime.datetime.now()
@@ -28,6 +30,15 @@ def process_withdrawal(withdrawal_ids: list, status: str):
                     user.profile.save()
                 withdrawals.update(status='error')
         if status == 'successful':
-            Withdrawal.objects.filter(id__in=withdrawal_ids).update(status='successful')
+            withdrawals = Withdrawal.objects.filter(
+                id__in=withdrawal_ids).update(
+                status='successful')
+            for withdrawal in withdrawals:
+                device = FCMDevice.objects.filter(user=withdrawal.user)
+                device.send_message(title="При выводе средств",
+                                    body=f"Успешно выведено баллов на сумму “{withdrawal.amount}” через “{withdrawal.get_method_display()}”")
+                Notification.objects.create(user=withdrawal.user,
+                                            title="При выводе средств",
+                                            body=f"Успешно выведено баллов на сумму “{withdrawal.amount}” через “{withdrawal.get_method_display()}”")
             return f'{len(withdrawal_ids)} withdrawals processed successfully'
         return f'There is no withdrawals to be processed in this request'
