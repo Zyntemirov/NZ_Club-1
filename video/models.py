@@ -63,6 +63,7 @@ class Video(models.Model):
                                             related_name='watched_videos')
     favorites = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                        related_name='favorites')
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, name='likes')
     # video = models.FileField(upload_to='media/videos/%Y/%m/%d/', verbose_name="Ютуб ссылка")
     video = models.CharField(max_length=255, null=True,
                              verbose_name="Ютуб ссылка",

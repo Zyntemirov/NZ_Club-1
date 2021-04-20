@@ -120,6 +120,7 @@ class VideoDetailSerializer(serializers.ModelSerializer):
     owner = UserSerializer()
     is_favorite = serializers.SerializerMethodField('has_user_favorite')
     last_comment = serializers.SerializerMethodField('get_last_comment_text')
+    likes = serializers.SerializerMethodField('get_likes')
 
     def has_user_favorite(self, video):
         if self.context["request"].user in video.favorites.all():
@@ -145,13 +146,16 @@ class VideoDetailSerializer(serializers.ModelSerializer):
         else:
             return None
 
+    def get_likes(self, obj):
+        return obj.likes.count()
+
     class Meta:
         model = Video
         fields = ['id', 'title', 'text', 'phone_1', 'phone_2', 'phone_3',
                   'instagram', 'facebook', 'web_site', 'video',
                   'create_at',
                   'owner', 'views', 'favorites', 'comments', 'is_favorite',
-                  'last_comment']
+                  'last_comment', 'likes']
 
 
 class ViewsDetailVideoSerializer(serializers.ModelSerializer):
@@ -160,6 +164,7 @@ class ViewsDetailVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ['views']
+
 
 
 class CommentsDetailVideoSerializer(serializers.ModelSerializer):
@@ -198,10 +203,14 @@ class FAQSerializer(serializers.ModelSerializer):
 
 class BannerSerializer(serializers.ModelSerializer):
     views = UserSerializer(many=True)
+    likes = serializers.SerializerMethodField('get_likes')
 
     class Meta:
         model = Banner
-        fields = ['id', 'video', 'url', 'image', 'block', 'views']
+        fields = ['id', 'video', 'url', 'image', 'block', 'views', 'likes']
+
+    def get_likes(self, obj):
+        return LikeBanner.objects.filter(banner=obj).count()
 
 
 class CreateLikeBannerSerializer(serializers.ModelSerializer):

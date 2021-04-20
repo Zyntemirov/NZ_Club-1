@@ -12,6 +12,7 @@ urlpatterns = [
     path('categories', CategoriesView.as_view()),
     path('video/detail/<int:id>', VideoDetailView.as_view()),
     path('views/video/detail/<int:id>', ViewsDetailVideoView.as_view()),
+    path('create/video/like/', CreateVideoLikeView.as_view()),
     path('comments/video/detail/<int:id>', CommentsDetailVideoView.as_view()),
     path('video/<str:search>', VideoSearchView.as_view()),
     path('video_training', VideoTrainingView.as_view()),
