@@ -99,7 +99,6 @@ class FcmCreateView(UpdateAPIView):
     def update(self, request, *args, **kwargs):
         user = get_user_model().objects.get(id=request.data['user'])
         if user:
-
             try:
                 fcm = FCMDevice.objects.get(user=request.data['user'])
                 fcm.registration_id = request.data['registration_id']

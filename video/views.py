@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import pagination
+from rest_framework.views import APIView
 
 from .serializers import *
 from video.models import *
@@ -284,3 +285,18 @@ class CreateLikeBannerView(viewsets.generics.CreateAPIView):
 class CreateComplaintView(viewsets.generics.CreateAPIView):
     serializer_class = CreateComplaintSerializer
     permission_classes = [IsAuthenticated]
+
+
+class CreateVideoLikeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        video = Video.objects.get(id=request.data['id'])
+        user = get_user_model().objects.get(id=request.user.id)
+        if user not in video.likes.all():
+            video.likes.add(user)
+            video.save()
+            return Response({'message': 'This user liked'},
+                            status.HTTP_201_CREATED)
+        return Response({'message': 'This user already liked'},
+                        status.HTTP_204_NO_CONTENT)
