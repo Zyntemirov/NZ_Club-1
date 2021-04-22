@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+
 from .models import *
 from django.conf import settings
 
@@ -91,6 +93,8 @@ class VideoSerializer(serializers.ModelSerializer):
     favorites = serializers.SerializerMethodField('get_favorites_count')
     comments = serializers.SerializerMethodField('get_comments_count')
     is_favorite = serializers.SerializerMethodField('has_user_favorite')
+    is_liked = serializers.SerializerMethodField('has_user_likes')
+    likes = serializers.SerializerMethodField('get_likes_count')
 
     def has_user_favorite(self, video):
         if self.context["request"].user in video.favorites.all():
@@ -107,10 +111,19 @@ class VideoSerializer(serializers.ModelSerializer):
     def get_comments_count(self, video):
         return video.comments.count()
 
+    def get_likes_count(self, video):
+        return video.likes.count()
+
+    def has_user_likes(self, video):
+        if self.context["request"].user in video.likes.all():
+            return True
+        return False
+
     class Meta:
         model = Video
         fields = ['id', 'title', 'text', 'image', 'category', 'views',
-                  'favorites', 'comments', 'is_favorite', 'get_status_display']
+                  'favorites', 'comments', 'is_favorite', 'get_status_display',
+                  'is_liked', 'likes']
 
 
 class VideoDetailSerializer(serializers.ModelSerializer):
@@ -166,7 +179,6 @@ class ViewsDetailVideoSerializer(serializers.ModelSerializer):
         fields = ['views']
 
 
-
 class CommentsDetailVideoSerializer(serializers.ModelSerializer):
     comments = CommentDetailSerializer(many=True)
 
@@ -216,11 +228,16 @@ class BannerSerializer(serializers.ModelSerializer):
 class CreateLikeBannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = LikeBanner
-        fields = ['banner']
+        fields = ['id', 'user', 'banner']
+        validators = [
+            UniqueTogetherValidator(
+                LikeBanner.objects.all(),
+                fields=['user', 'banner']
+            )
+        ]
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        like_banner = LikeBanner.objects.create(user=user, **validated_data)
+        like_banner = LikeBanner.objects.create(**validated_data)
         return like_banner
 
 

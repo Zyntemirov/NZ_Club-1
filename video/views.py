@@ -128,7 +128,11 @@ class VideoFilterView(ListAPIView):
     serializer_class = VideoSerializer
 
     def get_queryset(self):
-        queryset = Video.objects.filter(owner__region=self.kwargs['region'])
+        type_video = self.request.query_params.get('type_video', '')
+        region = self.request.query_params.get('region')
+        print(region)
+        queryset = Video.objects.filter(type=type_video,
+                                        owner__profile__region=region,status='2')
         return queryset
 
 
@@ -280,6 +284,17 @@ class CreateRequestView(viewsets.generics.CreateAPIView):
 class CreateLikeBannerView(viewsets.generics.CreateAPIView):
     serializer_class = CreateLikeBannerSerializer
     permission_classes = [IsAuthenticated]
+
+
+class DeleteLikeBannerView(APIView):
+    permission_classes = []
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        like_banner = LikeBanner.objects.filter(banner_id=kwargs['id'],
+                                                user=user)
+        like_banner.delete()
+        return Response(status.HTTP_204_NO_CONTENT)
 
 
 class CreateComplaintView(viewsets.generics.CreateAPIView):
