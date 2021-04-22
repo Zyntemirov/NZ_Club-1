@@ -140,15 +140,15 @@ class RegisterView(GenericAPIView):
         birth_date = (self.request.data.get('birth_date', '')).split('-')
         int_time = [int(i) for i in birth_date]
         date_time = date(int_time[0], int_time[1], int_time[2])
-        print(type(date_time))
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save(otp=code)
+            serializer.save()
             sms_resp = send_message_code(id, code, phone)
-            user_profile = userProfile.objects.get(
-                user=User.objects.get(phone=phone))
-            user_profile.birth_date = date_time
-            user_profile.save()
+            user = User.objects.get(phone=phone)
+            user.otp = code
+            user.save()
+            userProfile.objects.create(user=user,
+                                       birth_date=date_time)
             return Response(
                 {'phone': serializer.data.get('phone'), 'message': sms_resp},
                 status=status.HTTP_201_CREATED)
