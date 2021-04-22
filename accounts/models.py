@@ -22,13 +22,13 @@ class User(AbstractUser):
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = ['username']
 
-    def save(self, *args, **kwargs):
-        try:
-            if not self.pk:
-                userProfile.objects.create(user=self)
-        except:
-            pass
-        return super(User, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     try:
+    #         if not self.pk:
+    #             userProfile.objects.create(user=self)
+    #     except:
+    #         pass
+    #     return super(User, self).save(*args, **kwargs)
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)
