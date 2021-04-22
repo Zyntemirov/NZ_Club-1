@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+
 from .models import *
 from django.conf import settings
 
@@ -166,7 +168,6 @@ class ViewsDetailVideoSerializer(serializers.ModelSerializer):
         fields = ['views']
 
 
-
 class CommentsDetailVideoSerializer(serializers.ModelSerializer):
     comments = CommentDetailSerializer(many=True)
 
@@ -216,11 +217,16 @@ class BannerSerializer(serializers.ModelSerializer):
 class CreateLikeBannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = LikeBanner
-        fields = ['banner']
+        fields = ['id', 'user', 'banner']
+        validators = [
+            UniqueTogetherValidator(
+                LikeBanner.objects.all(),
+                fields=['user', 'banner']
+            )
+        ]
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        like_banner = LikeBanner.objects.create(user=user, **validated_data)
+        like_banner = LikeBanner.objects.create(**validated_data)
         return like_banner
 
 

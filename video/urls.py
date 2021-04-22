@@ -8,6 +8,7 @@ urlpatterns = [
     path('banners/detail/<int:banner_id>', BannerDetailView.as_view()),
     path('banners/block/<int:number>', BannerByBlockNumberView.as_view()),
     path('banners/like/', CreateLikeBannerView.as_view()),
+    path('banners/like/delete/<int:id>/', DeleteLikeBannerView.as_view()),
     path('banners/complaint/', CreateComplaintView.as_view()),
     path('categories', CategoriesView.as_view()),
     path('video/detail/<int:id>', VideoDetailView.as_view()),

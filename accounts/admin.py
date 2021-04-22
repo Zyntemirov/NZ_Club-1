@@ -64,4 +64,3 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(User, UserAdmin)
 admin.site.register(Notification)
 admin.site.site_header = "Nz Club"
-

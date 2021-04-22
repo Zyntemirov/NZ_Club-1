@@ -282,6 +282,17 @@ class CreateLikeBannerView(viewsets.generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
+class DeleteLikeBannerView(APIView):
+    permission_classes = []
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        like_banner = LikeBanner.objects.filter(banner_id=kwargs['id'],
+                                                user=user)
+        like_banner.delete()
+        return Response(status.HTTP_204_NO_CONTENT)
+
+
 class CreateComplaintView(viewsets.generics.CreateAPIView):
     serializer_class = CreateComplaintSerializer
     permission_classes = [IsAuthenticated]
