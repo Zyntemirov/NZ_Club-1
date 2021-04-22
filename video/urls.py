@@ -30,4 +30,5 @@ urlpatterns = [
     path('video/update/put_first', UpVideoInSevenDayView.as_view()),
     path('create/comment', CreateCommentView.as_view()),
     path('create/request', CreateRequestView.as_view()),
+    path('filter/', VideoFilterView.as_view())
 ]

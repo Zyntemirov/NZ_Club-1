@@ -128,7 +128,11 @@ class VideoFilterView(ListAPIView):
     serializer_class = VideoSerializer
 
     def get_queryset(self):
-        queryset = Video.objects.filter(owner__region=self.kwargs['region'])
+        type_video = self.request.query_params.get('type_video', '')
+        region = self.request.query_params.get('region')
+        print(region)
+        queryset = Video.objects.filter(type=type_video,
+                                        owner__profile__region=region,status='2')
         return queryset
 
 
