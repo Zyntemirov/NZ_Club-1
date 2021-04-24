@@ -122,7 +122,7 @@ class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ['id', 'title', 'text', 'image', 'category', 'views',
-                  'favorites', 'comments', 'is_favorite', 'get_status_display',
+                  'favorites', 'comments', 'is_favorite', 'get_type_display',
                   'is_liked', 'likes']
 
 
@@ -168,11 +168,12 @@ class VideoDetailSerializer(serializers.ModelSerializer):
                   'instagram', 'facebook', 'web_site', 'video',
                   'create_at',
                   'owner', 'views', 'favorites', 'comments', 'is_favorite',
-                  'last_comment', 'likes']
+                  'last_comment', 'likes', 'get_type_display']
 
 
 class ViewsDetailVideoSerializer(serializers.ModelSerializer):
     views = UserSerializer(many=True)
+
 
     class Meta:
         model = Video
