@@ -162,6 +162,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = _("Комментарий")
         verbose_name_plural = _("Комментарии")
+        ordering = ('-create_at',)
 
     def __str__(self):
         return self.text

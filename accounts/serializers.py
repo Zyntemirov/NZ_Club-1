@@ -239,7 +239,7 @@ class WithdrawalBulkUpdateSerializer(serializers.Serializer):
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    video = serializers.SlugRelatedField(slug_field="title", read_only=True)
+    video = serializers.SlugRelatedField(slug_field="id", read_only=True)
 
     class Meta:
         model = Notification

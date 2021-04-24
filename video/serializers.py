@@ -45,15 +45,18 @@ class VideoTrainingSerializer(serializers.ModelSerializer):
 
 
 class FilterReviewSerializer(serializers.ListSerializer):
+    """Вывод коментариев,только parents"""
+
     def to_representation(self, data):
         data = data.filter(parent=None)
         return super().to_representation(data)
 
 
 class RecursiveSerializer(serializers.Serializer):
-    def to_representation(self, instance):
-        serializer = self.parent.parent.__class__(instance,
-                                                  context=self.context)
+    """Вывод рекурсивные children"""
+
+    def to_representation(self, value):
+        serializer = self.parent.parent.__class__(value, context=self.context)
         return serializer.data
 
 
@@ -129,11 +132,12 @@ class VideoSerializer(serializers.ModelSerializer):
 class VideoDetailSerializer(serializers.ModelSerializer):
     views = serializers.SerializerMethodField('get_views_count')
     favorites = serializers.SerializerMethodField('get_favorites_count')
-    comments = serializers.SerializerMethodField('get_comments_count')
+    comments_count = serializers.SerializerMethodField('get_comments_count')
     owner = UserSerializer()
     is_favorite = serializers.SerializerMethodField('has_user_favorite')
     last_comment = serializers.SerializerMethodField('get_last_comment_text')
     likes = serializers.SerializerMethodField('get_likes')
+    comments = CommentDetailSerializer(many=True)
 
     def has_user_favorite(self, video):
         if self.context["request"].user in video.favorites.all():
@@ -167,13 +171,13 @@ class VideoDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'text', 'phone_1', 'phone_2', 'phone_3',
                   'instagram', 'facebook', 'web_site', 'video',
                   'create_at',
-                  'owner', 'views', 'favorites', 'comments', 'is_favorite',
-                  'last_comment', 'likes', 'get_type_display']
+                  'owner', 'views', 'favorites', 'comments_count',
+                  'is_favorite',
+                  'last_comment', 'likes', 'get_type_display', 'comments']
 
 
 class ViewsDetailVideoSerializer(serializers.ModelSerializer):
     views = UserSerializer(many=True)
-
 
     class Meta:
         model = Video
