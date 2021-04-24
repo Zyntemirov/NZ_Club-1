@@ -20,6 +20,8 @@ urlpatterns = [
          name='password_reset'),
     path('set_new_password/', SetNewPasswordView.as_view(),
          name='set_new_password'),
+    path('change_password/<int:pk>/', ChangePasswordView.as_view(),
+         name='change_password'),
     path('region_list/', RegionListView.as_view(), name='region_list'),
 
     # PAYMENT
