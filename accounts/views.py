@@ -212,6 +212,12 @@ class SetNewPasswordView(GenericAPIView):
                         status=status.HTTP_200_OK)
 
 
+class ChangePasswordView(UpdateAPIView):
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
+
+
 class TokenObtainPairView(TokenViewBase):
     serializer_class = TokenPairObtainSerializer
 
