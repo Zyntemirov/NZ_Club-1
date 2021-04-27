@@ -137,6 +137,7 @@ class VideoDetailSerializer(serializers.ModelSerializer):
     is_favorite = serializers.SerializerMethodField('has_user_favorite')
     last_comment = serializers.SerializerMethodField('get_last_comment_text')
     likes = serializers.SerializerMethodField('get_likes')
+    is_liked = serializers.SerializerMethodField('has_user_like')
     comments = CommentDetailSerializer(many=True)
 
     def has_user_favorite(self, video):
@@ -144,6 +145,11 @@ class VideoDetailSerializer(serializers.ModelSerializer):
             return True
         else:
             return False
+
+    def has_user_like(self, video):
+        if self.context['request'].user in video.likes.all():
+            return True
+        return False
 
     def get_views_count(self, video):
         return video.views.count()
@@ -173,7 +179,8 @@ class VideoDetailSerializer(serializers.ModelSerializer):
                   'create_at',
                   'owner', 'views', 'favorites', 'comments_count',
                   'is_favorite',
-                  'last_comment', 'likes', 'get_type_display', 'comments']
+                  'last_comment', 'likes', 'is_liked', 'get_type_display',
+                  'comments']
 
 
 class ViewsDetailVideoSerializer(serializers.ModelSerializer):
