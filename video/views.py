@@ -294,7 +294,7 @@ class CreateLikeBannerView(viewsets.generics.CreateAPIView):
 
 
 class DeleteLikeBannerView(APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         user = request.user
@@ -322,3 +322,13 @@ class CreateVideoLikeView(APIView):
                             status.HTTP_201_CREATED)
         return Response({'message': 'This user already liked'},
                         status.HTTP_204_NO_CONTENT)
+
+
+class DeleteVideoLikeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        video = Video.objects.get(id=kwargs['id'])
+        video.likes.remove(user)
+        return Response(status.HTTP_204_NO_CONTENT)
