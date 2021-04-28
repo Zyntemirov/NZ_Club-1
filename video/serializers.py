@@ -228,13 +228,21 @@ class FAQSerializer(serializers.ModelSerializer):
 class BannerSerializer(serializers.ModelSerializer):
     views = UserSerializer(many=True)
     likes = serializers.SerializerMethodField('get_likes')
+    is_liked = serializers.SerializerMethodField('has_user_like')
 
     class Meta:
         model = Banner
-        fields = ['id', 'video', 'url', 'image', 'block', 'views', 'likes']
+        fields = ['id', 'video', 'url', 'image', 'block', 'views', 'is_liked',
+                  'likes']
 
     def get_likes(self, obj):
         return LikeBanner.objects.filter(banner=obj).count()
+
+    def has_liked(self, video):
+        if LikeBanner.objects.filter(
+                user=self.context['request'].user).exists():
+            return True
+        return False
 
 
 class CreateLikeBannerSerializer(serializers.ModelSerializer):
