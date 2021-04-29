@@ -356,5 +356,6 @@ class RegionListView(APIView):
 
     def get(self, request, *args, **kwargs):
         region_list = {'1': 'Ош', '2': 'Ысык-Кол', '3': 'Жалал-Абад',
-                       '4': 'Талас', '5': 'Баткен', '6': 'Нарын', '7': 'Чуй'}
+                       '4': 'Талас', '5': 'Баткен', '6': 'Нарын', '7': 'Чуй',
+                       '8': 'Бишкек'}
         return Response(region_list)

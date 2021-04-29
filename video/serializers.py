@@ -130,6 +130,7 @@ class VideoSerializer(serializers.ModelSerializer):
 
 
 class VideoDetailSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
     views = serializers.SerializerMethodField('get_views_count')
     favorites = serializers.SerializerMethodField('get_favorites_count')
     comments_count = serializers.SerializerMethodField('get_comments_count')
@@ -174,7 +175,8 @@ class VideoDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Video
-        fields = ['id', 'title', 'text', 'phone_1', 'phone_2', 'phone_3',
+        fields = ['id', 'category', 'title', 'text', 'phone_1', 'phone_2',
+                  'phone_3',
                   'instagram', 'facebook', 'web_site', 'video',
                   'create_at',
                   'owner', 'views', 'favorites', 'comments_count',
@@ -228,13 +230,21 @@ class FAQSerializer(serializers.ModelSerializer):
 class BannerSerializer(serializers.ModelSerializer):
     views = UserSerializer(many=True)
     likes = serializers.SerializerMethodField('get_likes')
+    is_liked = serializers.SerializerMethodField('has_user_like')
 
     class Meta:
         model = Banner
-        fields = ['id', 'video', 'url', 'image', 'block', 'views', 'likes']
+        fields = ['id', 'video', 'url', 'image', 'block', 'views', 'is_liked',
+                  'likes']
 
     def get_likes(self, obj):
         return LikeBanner.objects.filter(banner=obj).count()
+
+    def has_liked(self, video):
+        if LikeBanner.objects.filter(
+                user=self.context['request'].user).exists():
+            return True
+        return False
 
 
 class CreateLikeBannerSerializer(serializers.ModelSerializer):

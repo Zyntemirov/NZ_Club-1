@@ -46,6 +46,7 @@ class userProfile(models.Model):
         ('5', 'Баткен'),
         ('6', 'Нарын'),
         ('7', 'Чуй'),
+        ('8', 'Бишкек')
 
     )
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
