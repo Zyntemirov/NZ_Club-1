@@ -12,7 +12,6 @@ urlpatterns = [
     path('banners/complaint/', CreateComplaintView.as_view()),
     path('categories', CategoriesView.as_view()),
     path('video/detail/<int:id>', VideoDetailView.as_view()),
-    path('video/detail/<int:id>', VideoDetailView.as_view()),
     path('views/video/detail/<int:id>', ViewsDetailVideoView.as_view()),
     path('create/video/like/', CreateVideoLikeView.as_view()),
     path('delete/video/like/<int:id>/', DeleteVideoLikeView.as_view()),

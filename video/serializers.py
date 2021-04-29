@@ -6,6 +6,22 @@ from .models import *
 from django.conf import settings
 
 
+class FilterReviewSerializer(serializers.ListSerializer):
+    """Вывод коментариев,только parents"""
+
+    def to_representation(self, data):
+        data = data.filter(parent=None)
+        return super().to_representation(data)
+
+
+class RecursiveSerializer(serializers.Serializer):
+    """Вывод рекурсивные children"""
+
+    def to_representation(self, value):
+        serializer = self.parent.parent.__class__(value, context=self.context)
+        return serializer.data
+
+
 class UserSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_image')
 
@@ -44,31 +60,14 @@ class VideoTrainingSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FilterReviewSerializer(serializers.ListSerializer):
-    """Вывод коментариев,только parents"""
-
-    def to_representation(self, data):
-        data = data.filter(parent=None)
-        return super().to_representation(data)
-
-
-class RecursiveSerializer(serializers.Serializer):
-    """Вывод рекурсивные children"""
-
-    def to_representation(self, value):
-        serializer = self.parent.parent.__class__(value, context=self.context)
-        return serializer.data
-
-
 class CommentDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     children = RecursiveSerializer(many=True)
 
     class Meta:
-        list_serializer_filter = FilterReviewSerializer
+        list_serializer_class = FilterReviewSerializer
         model = Comment
-        ref_name = 'comment.user'
-        fields = ['id', 'text', 'create_at', 'user', 'children']
+        fields = ['id', 'user', 'text', 'create_at', 'children']
 
 
 # class CreateCommentSerializer(serializers.ModelSerializer):
@@ -183,6 +182,7 @@ class VideoDetailSerializer(serializers.ModelSerializer):
                   'is_favorite',
                   'last_comment', 'likes', 'is_liked', 'get_type_display',
                   'comments']
+        depth = True
 
 
 class ViewsDetailVideoSerializer(serializers.ModelSerializer):
