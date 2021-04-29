@@ -240,7 +240,7 @@ class BannerSerializer(serializers.ModelSerializer):
     def get_likes(self, obj):
         return LikeBanner.objects.filter(banner=obj).count()
 
-    def has_liked(self, video):
+    def has_user_like(self, video):
         if LikeBanner.objects.filter(
                 user=self.context['request'].user).exists():
             return True
