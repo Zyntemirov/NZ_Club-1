@@ -36,6 +36,7 @@ class Transfer(models.Model):
     class Meta:
         verbose_name = _("Перевод")
         verbose_name_plural = _("Переводы")
+        ordering = ('-create_at',)
 
 
 class PromoCode(models.Model):
@@ -69,3 +70,4 @@ class DonateTransfer(models.Model):
     class Meta:
         verbose_name = _("Благотворительный перевод")
         verbose_name_plural = _("Блалготворительные переводы")
+        ordering = ('-created',)
