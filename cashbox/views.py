@@ -50,37 +50,41 @@ class CreateTransferView(viewsets.generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         user = get_user_model().objects.get(id=request.data['user_id'])
-        if user:
-            profile = user.profile
-            if profile.balance < float(request.data['amount']):
+        receiver = get_user_model().objects.get(
+            username=request.data['username'])
+        if user != receiver:
+            if user:
+                profile = user.profile
+                if profile.balance < float(request.data['amount']):
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+                profile.balance = profile.balance - request.data['amount']
+                profile.save()
+
+                Transfer.objects.create(
+                    sender=user,
+                    receiver=request.data['username'],
+                    code=request.data['code'],
+                    amount=request.data['amount'],
+                )
+
+                receiver = get_user_model().objects.get(
+                    username=request.data['username'])
+                device = FCMDevice.objects.filter(user=receiver)
+                device.send_message(title="Перевод💰",
+                                    body="Пользователь " + user.username + " отправил(а) вам " + str(
+                                        request.data[
+                                            'amount']) + " баллов. Введите код чтобы получить перевод.",
+                                    icon=settings.GLOBAL_HOST + profile.image.url)
+                Notification.objects.create(user=user, title="Перевод💰",
+                                            body="Пользователь " + user.username + " отправил(а) вам " + str(
+                                                request.data[
+                                                    'amount']) + " баллов. Введите код чтобы получить перевод.",
+                                            image=settings.GLOBAL_HOST + profile.image.url)
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            profile.balance = profile.balance - request.data['amount']
-            profile.save()
-
-            Transfer.objects.create(
-                sender=user,
-                receiver=request.data['username'],
-                code=request.data['code'],
-                amount=request.data['amount'],
-            )
-
-            receiver = get_user_model().objects.get(
-                username=request.data['username'])
-            device = FCMDevice.objects.filter(user=receiver)
-            device.send_message(title="Перевод💰",
-                                body="Пользователь " + user.username + " отправил(а) вам " + str(
-                                    request.data[
-                                        'amount']) + " баллов. Введите код чтобы получить перевод.",
-                                icon=settings.GLOBAL_HOST + profile.image.url)
-            Notification.objects.create(user=user, title="Перевод💰",
-                                        body="Пользователь " + user.username + " отправил(а) вам " + str(
-                                            request.data[
-                                                'amount']) + " баллов. Введите код чтобы получить перевод.",
-                                        image=settings.GLOBAL_HOST + profile.image.url)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'You cant not transfer to yourself.'})
 
 
 class CreatePromoCodeView(viewsets.generics.UpdateAPIView):
