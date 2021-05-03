@@ -126,6 +126,7 @@ class VideoSearchView(viewsets.generics.ListAPIView):
 
 class VideoFilterView(ListAPIView):
     serializer_class = VideoSerializer
+    permission_classes = ()
 
     def get_queryset(self):
         type_video = self.request.query_params.get('type_video', '')
@@ -133,9 +134,9 @@ class VideoFilterView(ListAPIView):
         queryset = Video.objects.filter(status='2')
         if type_video == 'all':
             pass
-        if type_video == 'donate':
+        elif type_video == 'donate':
             queryset = queryset.filter(type='3')
-        if type_video == 'vip':
+        elif type_video == 'vip':
             queryset = queryset.filter(type='2')
         if region:
             queryset = queryset.filter(owner__profile__region=region)
