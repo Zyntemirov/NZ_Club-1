@@ -287,7 +287,6 @@ class WithdrawalView(ListCreateAPIView):
                     pass
                 user = User.objects.select_for_update().get(id=request.user.id)
                 request.data.update({'user': request.user.id})
-                print(request.user)
                 serializer = self.get_serializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 self.perform_create(serializer)
@@ -359,3 +358,12 @@ class RegionListView(APIView):
                        '4': 'Талас', '5': 'Баткен', '6': 'Нарын', '7': 'Чуй',
                        '8': 'Бишкек'}
         return Response(region_list)
+
+
+class WithdrawalHistoryView(ListAPIView):
+    serializer_class = WithdrawalHistorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Withdrawal.objects.filter(user=self.request.user)
+        return queryset
