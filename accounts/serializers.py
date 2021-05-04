@@ -214,6 +214,15 @@ class WithdrawalListSerializer(WithdrawalBaseSerializer):
     pass
 
 
+class WithdrawalHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Withdrawal
+        fields = (
+            'amount', 'requisite', 'get_method_display', 'get_status_display',
+            'created'
+        )
+
+
 class WithdrawalCreateSerializer(serializers.ModelSerializer):
     class Meta(WithdrawalBaseSerializer.Meta):
         fields = WithdrawalBaseSerializer.Meta.fields + ['user']

@@ -28,7 +28,7 @@ urlpatterns = [
     path('pay24/check/', CheckPaymentView.as_view(), name='payment_check'),
     path('pay24/pay/', PayPaymentView.as_view(), name='payment_pay'),
     path('withdrawal/', WithdrawalView.as_view(), name='withdrawal'),
-
+    path('withdrawal/history/', WithdrawalHistoryView.as_view(), name='withdrawal_history'),
     # Notification
     path('notification/', NotificationAPIView.as_view(), name='notification'),
     path('notification/delete/<int:pk>/', NotificationDeleteView.as_view(),
