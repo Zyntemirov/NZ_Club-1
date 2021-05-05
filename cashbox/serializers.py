@@ -65,7 +65,7 @@ class TransferHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transfer
-        fields = ['id', 'sender', 'receiver', 'amount', 'create_at', 'is_paid',
+        fields = ['id', 'sender', 'receiver', 'amount', 'code','create_at', 'is_paid',
                   'is_read']
 
 
