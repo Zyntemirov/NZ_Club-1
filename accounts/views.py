@@ -367,3 +367,13 @@ class WithdrawalHistoryView(ListAPIView):
     def get_queryset(self):
         queryset = Withdrawal.objects.filter(user=self.request.user)
         return queryset
+
+
+class CompanyDetail(GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            user = User.objects.get(username='nz_club')
+            return Response({'balance': user.profile.balance},
+                            status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({}, status.HTTP_400_BAD_REQUEST)

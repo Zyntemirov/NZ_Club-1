@@ -33,4 +33,5 @@ urlpatterns = [
     path('notification/', NotificationAPIView.as_view(), name='notification'),
     path('notification/delete/<int:pk>/', NotificationDeleteView.as_view(),
          name='notification_delete'),
+    path('company/detail/',CompanyDetail.as_view(),name='company_detail'),
 ]
