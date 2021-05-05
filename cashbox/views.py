@@ -59,6 +59,8 @@ class CreateTransferView(viewsets.generics.UpdateAPIView):
                     return Response(status=status.HTTP_400_BAD_REQUEST)
 
                 profile.balance = profile.balance - request.data['amount']
+                profile.withdrawn_balance = profile.withdrawn_balance + \
+                                            request.data['amount']
                 profile.save()
 
                 Transfer.objects.create(
@@ -211,6 +213,7 @@ class CreateDonateTransferView(APIView):
                                            ' this amount for transfer'},
                                 status.HTTP_400_BAD_REQUEST)
             user.profile.balance -= float(request.data['amount'])
+            user.profile.withdrawn_balance += float(request.data['amount'])
             video.owner.profile.balance += float(request.data['amount'])
             user.profile.save()
             video.owner.profile.save()

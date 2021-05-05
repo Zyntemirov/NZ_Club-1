@@ -112,6 +112,7 @@ class CreateDonateForCompanySerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user
         user.profile.balance -= float(validated_data.get('amount'))
+        user.profile.withdrawn_balance -= float(validated_data.get('amount'))
         user.profile.save()
         nz_club = User.objects.get(username='nz_club')
         nz_club.profile.balance += float(validated_data.get('amount'))
