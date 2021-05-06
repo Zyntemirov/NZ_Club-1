@@ -377,3 +377,9 @@ class CompanyDetail(GenericAPIView):
                             status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({}, status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateProfileView(UpdateAPIView):
+    queryset = userProfile.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UpdateProfileSerializer
