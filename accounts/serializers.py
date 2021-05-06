@@ -274,3 +274,38 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.set_password(validated_data['password'])
         instance.save()
         return instance
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        models = User
+        fields = 'username',
+
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(required=True)
+
+    class Meta:
+        model = userProfile
+        fields = ('gender', 'region', 'birth_date', 'image','user')
+
+    def validate(self, attrs):
+        username = attrs.get('user')
+        try:
+            User.objects.get(username=username)
+            raise ValidationError(
+                {'username': 'This username is already taken'}
+            )
+        except User.DoesNotExist:
+            return attrs
+
+    def update(self, instance, validated_data):
+        username = validated_data.pop('user')
+        instance.gender = validated_data.pop('gender')
+        instance.region = validated_data.pop('region')
+        instance.birth_date = validated_data.pop('birth_date')
+        instance.image = validated_data.pop('image')
+        instance.user.username = username
+        instance.user.save()
+        instance.save()
+        return instance
