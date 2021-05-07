@@ -207,7 +207,7 @@ class CreateDonateTransferView(APIView):
     def post(self, request, *args, **kwargs):
         user = request.user
         video = Video.objects.get(id=request.data['video_id'])
-        if user:
+        if user != video.owner:
             if user.profile.balance < float(request.data['amount']):
                 return Response({'amount': 'In your balance does not enough'
                                            ' this amount for transfer'},
@@ -232,7 +232,8 @@ class CreateDonateTransferView(APIView):
                                                 'amount']),
                                         image=settings.GLOBAL_HOST + video.owner.profile.image.url)
             return Response(status.HTTP_200_OK)
-        return Response(status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'You cant not donate to your video'},
+                        status.HTTP_400_BAD_REQUEST)
 
 
 class CreateDonateForCompanyView(viewsets.generics.CreateAPIView):
