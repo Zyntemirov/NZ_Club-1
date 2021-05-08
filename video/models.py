@@ -199,7 +199,7 @@ class Banner(models.Model):
     views = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                    related_name='views')
     block = models.IntegerField(default=1, verbose_name="Блок")
-
+    created = models.DateTimeField(auto_now_add=True)
     class Meta:
         verbose_name = _("Баннер")
         verbose_name_plural = _("Баннеры")

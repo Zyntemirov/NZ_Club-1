@@ -235,7 +235,7 @@ class BannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Banner
         fields = ['id', 'video', 'url', 'image', 'block', 'views', 'is_liked',
-                  'likes']
+                  'likes', 'created']
 
     def get_likes(self, obj):
         return LikeBanner.objects.filter(banner=obj).count()
