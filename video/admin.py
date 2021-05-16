@@ -118,8 +118,9 @@ class MyVideoAdmin(admin.ModelAdmin):
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title']
+    list_display = ['id', 'title', 'number']
     search_fields = ['title']
+    list_editable = ['number']
 
 
 class CommentAdmin(admin.ModelAdmin):

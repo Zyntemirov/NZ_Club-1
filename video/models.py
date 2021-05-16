@@ -17,10 +17,12 @@ class Category(models.Model):
     title = models.CharField(max_length=50, verbose_name="Название")
     image = ResizedImageField(upload_to='category/', verbose_name='Фотография',
                               size=[100, 100])
+    number = models.PositiveIntegerField()
 
     class Meta:
         verbose_name = _("Категория")
         verbose_name_plural = _("Категории")
+        ordering = ('-number',)
 
     def image_tag(self):
         return mark_safe('<img src={} width="200" />'.format(self.image.url))
@@ -200,6 +202,7 @@ class Banner(models.Model):
                                    related_name='views')
     block = models.IntegerField(default=1, verbose_name="Блок")
     created = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         verbose_name = _("Баннер")
         verbose_name_plural = _("Баннеры")
