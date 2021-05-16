@@ -232,7 +232,7 @@ class CreateDonateTransferView(APIView):
                                                 'amount']),
                                         image=settings.GLOBAL_HOST + video.owner.profile.image.url)
             return Response(status.HTTP_200_OK)
-        return Response({'message': 'You cant not donate to your video'},
+        return Response({'message': 'Вы не можете пожертвовать себе'},
                         status.HTTP_400_BAD_REQUEST)
 
 
