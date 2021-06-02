@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db.models import Q
 from accounts.models import User
 from video.models import *
+from adminsortable2.admin import SortableAdminMixin
 
 
 class TariffInline(admin.TabularInline):
@@ -22,14 +23,15 @@ class TariffInline(admin.TabularInline):
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ['owner', 'title', 'category', 'status', 'is_active']
+    list_display = ['owner', 'title', 'category', 'status', 'is_active',
+                    'get_owner_region']
+    list_select_related = ('owner', 'category')
     list_display_links = ['owner', 'title', 'category']
     search_fields = ['title', 'text']
     list_filter = ['owner__username']
     exclude = ('favorites', 'views', 'is_active', 'watched_videos')
     list_per_page = 50
     autocomplete_fields = ['owner', ]
-    list_select_related = ['owner']
     # list_editable = ['status', ]
     inlines = [TariffInline]
 
@@ -42,7 +44,11 @@ class VideoAdmin(admin.ModelAdmin):
     def make_activation(self, request, queryset):
         queryset.update(status='2')
 
+    def get_owner_region(self, obj):
+        return f'{obj.owner.profile.get_region_display()}'
+
     make_activation.short_description = 'Активировать'
+    get_owner_region.short_description = 'Регион'
 
     def get_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -117,10 +123,10 @@ class MyVideoAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'number']
+@admin.register(Category)
+class CategoryAdmin(SortableAdminMixin, admin.ModelAdmin):
+    list_display = ['title']
     search_fields = ['title']
-    list_editable = ['number']
 
 
 class CommentAdmin(admin.ModelAdmin):
@@ -162,10 +168,10 @@ class VideoTrainingAdmin(admin.ModelAdmin):
     list_display_links = list_display
 
 
-class BannerAdmin(admin.ModelAdmin):
-    list_display = ['id', 'image', 'video', 'block']
+@admin.register(Banner)
+class BannerAdmin(SortableAdminMixin, admin.ModelAdmin):
+    list_display = ['id', 'image', 'video']
     list_display_links = list_display
-    list_filter = ['block']
 
     exclude = ('views',)
 
@@ -175,11 +181,9 @@ class BannerAdmin(admin.ModelAdmin):
     #     return True
 
 
-admin.site.register(Category, CategoryAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.register(Request, RequestAdmin)
-admin.site.register(Banner, BannerAdmin)
 admin.site.register(ViewBanner, ViewBannerAdmin)
 admin.site.register(VideoTraining, VideoTrainingAdmin)
 admin.site.register(ComplaintBanner)
