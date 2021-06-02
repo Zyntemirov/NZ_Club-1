@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'djoser',
+    'adminsortable2',
     'django_celery_beat',
     'fcm_django',
     'rest_framework',

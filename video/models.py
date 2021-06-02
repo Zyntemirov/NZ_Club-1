@@ -17,12 +17,12 @@ class Category(models.Model):
     title = models.CharField(max_length=50, verbose_name="Название")
     image = ResizedImageField(upload_to='category/', verbose_name='Фотография',
                               size=[100, 100])
-    number = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(default=0, blank=True, null=False)
 
     class Meta:
         verbose_name = _("Категория")
         verbose_name_plural = _("Категории")
-        ordering = ('-number',)
+        ordering = ('-order',)
 
     def image_tag(self):
         return mark_safe('<img src={} width="200" />'.format(self.image.url))
@@ -200,12 +200,13 @@ class Banner(models.Model):
     image = models.ImageField(upload_to='banners/', verbose_name="Обложка")
     views = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                    related_name='views')
-    block = models.IntegerField(default=1, verbose_name="Блок")
+    order = models.PositiveIntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = _("Баннер")
         verbose_name_plural = _("Баннеры")
+        ordering = ('order',)
 
     def __str__(self):
         return self.video
