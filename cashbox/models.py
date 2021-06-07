@@ -27,7 +27,8 @@ class Transfer(models.Model):
                                verbose_name="Отправитель")
     receiver = models.CharField(max_length=50, verbose_name="Получатель")
     amount = models.IntegerField(verbose_name="Сумма")
-    code = models.CharField(max_length=50, verbose_name="Код")
+    code = models.CharField(max_length=50, verbose_name="Код", null=True,
+                            blank=True)
     create_at = models.DateTimeField(auto_now=True,
                                      verbose_name="Дата создания")
     is_paid = models.BooleanField(default=False, verbose_name="Оплачено")

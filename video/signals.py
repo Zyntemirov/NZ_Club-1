@@ -21,6 +21,12 @@ def video_pre_save_receiver(sender, instance, *args, **kwargs):
                                   body="Кликните сюда чтобы посмотреть видео " + instance.title,
                                   image=old_instance.image) for device in
                      devices])
+                # for device in devices:
+                #     Notification.objects.create(user=device.user,
+                #                                 title="Новое видео🔥",
+                #                                 video=old_instance,
+                #                                 body="Кликните сюда чтобы посмотреть видео " + instance.title,
+                #                                 image=old_instance.image)
                 devices.send_message(title="Новое видео🔥",
                                      body="Кликните сюда чтобы посмотреть видео " + instance.title)
             except FCMDevice.DoesNotExist:

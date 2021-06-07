@@ -69,19 +69,21 @@ class CreateTransferView(viewsets.generics.UpdateAPIView):
                     code=request.data['code'],
                     amount=request.data['amount'],
                 )
-
                 receiver = get_user_model().objects.get(
                     username=request.data['username'])
                 device = FCMDevice.objects.filter(user=receiver)
+                device_sender = FCMDevice.objects.get(user=user)
                 device.send_message(title="Перевод💰",
-                                    body="Пользователь " + user.username + " отправил(а) вам " + str(
-                                        request.data[
-                                            'amount']) + " баллов. Введите код чтобы получить перевод.",
+                                    body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']} баллов. Введите код чтобы получить перевод.",
                                     icon=settings.GLOBAL_HOST + profile.image.url)
+                Notification.objects.create(user=receiver, title="Перевод💰",
+                                            body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']} баллов. Введите код чтобы получить перевод.",
+                                            image=settings.GLOBAL_HOST + profile.image.url)
+                device_sender.send_message(title="Перевод💰",
+                                           body=f"Вы перевели пользователю {user.username} {request.data['amount']}",
+                                           icon=settings.GLOBAL_HOST + profile.image.url)
                 Notification.objects.create(user=user, title="Перевод💰",
-                                            body="Пользователь " + user.username + " отправил(а) вам " + str(
-                                                request.data[
-                                                    'amount']) + " баллов. Введите код чтобы получить перевод.",
+                                            body=f"Вы перевели пользователю {user.username} {request.data['amount']}",
                                             image=settings.GLOBAL_HOST + profile.image.url)
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
@@ -217,20 +219,25 @@ class CreateDonateTransferView(APIView):
             video.owner.profile.balance += float(request.data['amount'])
             user.profile.save()
             video.owner.profile.save()
-            DonateTransfer.objects.create(sender=user, receiver=video.owner,
-                                          amount=request.data['amount']
-                                          )
+            Transfer.objects.create(
+                sender=user,
+                receiver=request.data['username'],
+                amount=request.data['amount'],
+            )
             device = FCMDevice.objects.filter(user=video.owner)
+            device_sender = FCMDevice.objects.filter(user=user)
             device.send_message(title="Перевод💰",
-                                body="Пользователь " + user.username + " отправил(а) вам " + str(
-                                    request.data[
-                                        'amount']),
+                                body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
                                 icon=settings.GLOBAL_HOST + user.profile.image.url)
             Notification.objects.create(user=video.owner, title="Перевод💰",
-                                        body="Пользователь " + user.username + " отправил(а) вам " + str(
-                                            request.data[
-                                                'amount']),
+                                        body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
                                         image=settings.GLOBAL_HOST + video.owner.profile.image.url)
+            device_sender.send_message(title="Перевод💰",
+                                       body=f"Вы перевели пользователю {video.owner.username} {request.data['amount']}",
+                                       icon=settings.GLOBAL_HOST + user.profile.image.url)
+            Notification.objects.create(user=user, title="Перевод💰",
+                                        body=f"Вы перевели пользователю {video.owner.username} {request.data['amount']}",
+                                        image=settings.GLOBAL_HOST + user.profile.image.url)
             return Response(status.HTTP_200_OK)
         return Response({'message': 'Вы не можете пожертвовать себе'},
                         status.HTTP_400_BAD_REQUEST)
