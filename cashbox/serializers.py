@@ -65,7 +65,8 @@ class TransferHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transfer
-        fields = ['id', 'sender', 'receiver', 'amount', 'code','create_at', 'is_paid',
+        fields = ['id', 'sender', 'receiver', 'amount', 'code', 'create_at',
+                  'is_paid',
                   'is_read']
 
 
@@ -117,18 +118,23 @@ class CreateDonateForCompanySerializer(serializers.ModelSerializer):
         nz_club = User.objects.get(username='nz_club')
         nz_club.profile.balance += float(validated_data.get('amount'))
         nz_club.profile.save()
-        transfer = DonateTransfer.objects.create(sender=user, receiver=nz_club,
-                                                 amount=validated_data.get(
-                                                     'amount'))
+        transfer = Transfer.objects.create(
+            sender=user,
+            receiver=request.data['username'],
+            amount=request.data['amount'],
+        )
         device = FCMDevice.objects.filter(user=nz_club)
+        device_sender = FCMDevice.objects.filter(user=user)
         device.send_message(title="Перевод💰",
-                            body="Пользователь " + user.username + " отправил(а) вам " + str(
-                                request.data[
-                                    'amount']),
+                            body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
                             icon=settings.GLOBAL_HOST + nz_club.profile.image.url)
         Notification.objects.create(user=nz_club, title="Перевод💰",
-                                    body="Пользователь " + user.username + " отправил(а) вам " + str(
-                                        request.data[
-                                            'amount']),
+                                    body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
+                                    image=settings.GLOBAL_HOST + nz_club.profile.image.url)
+        device_sender.send_message(title="Перевод💰",
+                                   body=f"Вы перевели пользователю {user.username} {request.data['amount']}",
+                                   icon=settings.GLOBAL_HOST + nz_club.profile.image.url)
+        Notification.objects.create(user=user, title="Перевод💰",
+                                    body=f"Вы перевели пользователю {user.username} {request.data['amount']}",
                                     image=settings.GLOBAL_HOST + nz_club.profile.image.url)
         return transfer
