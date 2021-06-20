@@ -22,6 +22,9 @@ class User(AbstractUser):
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = ['username']
 
+    def __str__(self):
+        return f'{self.phone} -> {self.profile.get_region_display()}'
+
     # def save(self, *args, **kwargs):
     #     try:
     #         if not self.pk:
