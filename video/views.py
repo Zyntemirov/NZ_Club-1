@@ -179,7 +179,7 @@ class UserWatchedBannerView(viewsets.generics.UpdateAPIView):
 
 class BannerView(viewsets.generics.ListAPIView):
     serializer_class = BannerSerializer
-    queryset = Banner.objects.all().order_by('id').reverse()
+    queryset = Banner.objects.all()
 
 
 class BannerDetailView(viewsets.generics.ListAPIView):

@@ -22,7 +22,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = _("Категория")
         verbose_name_plural = _("Категории")
-        ordering = ('-order',)
+        ordering = ('order',)
 
     def image_tag(self):
         return mark_safe('<img src={} width="200" />'.format(self.image.url))

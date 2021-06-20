@@ -125,8 +125,7 @@ class MyVideoAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ['title']
-    search_fields = ['title']
+    pass
 
 
 class CommentAdmin(admin.ModelAdmin):
