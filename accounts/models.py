@@ -23,7 +23,11 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):
+        return f'{self.username} -> {self.profile.get_region_display()}'
+    def info(self):
         return f'{self.phone} -> {self.profile.get_region_display()}'
+
+
 
     # def save(self, *args, **kwargs):
     #     try:
@@ -131,10 +135,14 @@ class Notification(models.Model):
     title = models.CharField("Заголовок", max_length=150)
     body = models.TextField("Тело")
     image = ResizedImageField("Изображение", size=[150, 150], quality=100,
-                              upload_to='notifications/', blank=True, null=True)
+                              upload_to='notifications/', blank=True,
+                              null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Notification"
         verbose_name_plural = "Notifications"
         ordering = ('-created',)
+
+    def __str__(self):
+        return f'{self.user} {self.title}'

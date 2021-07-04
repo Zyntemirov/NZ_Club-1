@@ -20,7 +20,7 @@ class MyPagination(pagination.PageNumberPagination):
 # list get API
 class CategoriesView(viewsets.generics.ListAPIView):
     serializer_class = CategorySerializer
-    queryset = Category.objects.all().order_by('id').reverse()
+    queryset = Category.objects.all()
 
 
 class VideoTrainingView(viewsets.generics.ListAPIView):
