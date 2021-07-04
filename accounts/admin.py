@@ -53,12 +53,12 @@ class UserAdmin(BaseUserAdmin):
                 return self.add_fieldsets_subadmin
             return self.fieldsets_subadmin
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        user_profile = userProfile.objects.get(user=request.user)
-        if request.user.is_superuser:
-            return qs
-        return qs.filter(profile__region=user_profile.region)
+    # def get_queryset(self, request):
+    #     qs = super().get_queryset(request)
+    #     user_profile = userProfile.objects.get(user=request.user)
+    #     if request.user.is_superuser:
+    #         return qs
+    #     return qs.filter(profile__region=user_profile.region)
 
 
 admin.site.register(User, UserAdmin)

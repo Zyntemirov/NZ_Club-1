@@ -31,7 +31,7 @@ class VideoAdmin(admin.ModelAdmin):
     list_filter = ['owner__username']
     exclude = ('favorites', 'views', 'is_active', 'watched_videos')
     list_per_page = 50
-    autocomplete_fields = ['owner', ]
+    autocomplete_fields = ['owner']
     # list_editable = ['status', ]
     inlines = [TariffInline]
 

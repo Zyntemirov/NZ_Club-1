@@ -132,9 +132,9 @@ class CreateDonateForCompanySerializer(serializers.ModelSerializer):
                                     body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
                                     image=settings.GLOBAL_HOST + nz_club.profile.image.url)
         device_sender.send_message(title="Перевод💰",
-                                   body=f"Вы перевели пользователю {user.username} {request.data['amount']}",
+                                   body=f"Вы перевели пользователю {nz_club.username} {request.data['amount']}",
                                    icon=settings.GLOBAL_HOST + nz_club.profile.image.url)
         Notification.objects.create(user=user, title="Перевод💰",
-                                    body=f"Вы перевели пользователю {user.username} {request.data['amount']}",
+                                    body=f"Вы перевели пользователю {nz_club.username} {request.data['amount']}",
                                     image=settings.GLOBAL_HOST + nz_club.profile.image.url)
         return transfer

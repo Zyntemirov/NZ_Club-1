@@ -80,10 +80,10 @@ class CreateTransferView(viewsets.generics.UpdateAPIView):
                                             body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']} баллов. Введите код чтобы получить перевод.",
                                             image=settings.GLOBAL_HOST + profile.image.url)
                 device_sender.send_message(title="Перевод💰",
-                                           body=f"Вы перевели пользователю {user.username} {request.data['amount']}",
+                                           body=f"Вы перевели пользователю {receiver.username} {request.data['amount']}",
                                            icon=settings.GLOBAL_HOST + profile.image.url)
                 Notification.objects.create(user=user, title="Перевод💰",
-                                            body=f"Вы перевели пользователю {user.username} {request.data['amount']}",
+                                            body=f"Вы перевели пользователю {receiver.username} {request.data['amount']}",
                                             image=settings.GLOBAL_HOST + profile.image.url)
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:

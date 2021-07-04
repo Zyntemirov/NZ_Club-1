@@ -12,34 +12,52 @@ def video_pre_save_receiver(sender, instance, *args, **kwargs):
     if instance.id != None:
         old_instance = Video.objects.get(id=instance.id)
         if old_instance.is_active == False and (
-                old_instance.status == '1' or old_instance.status == '3') and instance.is_active == True and instance.status == '2':
+                old_instance.status == '1' or old_instance.status == '3') and (
+                instance.is_active == True and instance.status == '2'):
             try:
                 devices = FCMDevice.objects.all()
-                Notification.objects.bulk_create(
-                    [Notification(user=device.user, title="Новое видео🔥",
-                                  video=old_instance,
-                                  body="Кликните сюда чтобы посмотреть видео " + instance.title,
-                                  image=old_instance.image) for device in
-                     devices])
-                # for device in devices:
-                #     Notification.objects.create(user=device.user,
-                #                                 title="Новое видео🔥",
-                #                                 video=old_instance,
-                #                                 body="Кликните сюда чтобы посмотреть видео " + instance.title,
-                #                                 image=old_instance.image)
+                for device in devices:
+                    Notification.objects.create(user=device.user,
+                                                title="Новое видео🔥",
+                                                video=old_instance,
+                                                body="Кликните сюда чтобы посмотреть видео " + instance.title,
+                                                image=old_instance.image)
                 devices.send_message(title="Новое видео🔥",
                                      body="Кликните сюда чтобы посмотреть видео " + instance.title)
             except FCMDevice.DoesNotExist:
                 pass
 
 
+@receiver(post_save, sender=Video)
+def video_post_save_receiver(sender, instance, created, *args, **kwargs):
+    if created:
+        if instance.is_active == True and instance.status == '2':
+            try:
+                devices = FCMDevice.objects.all()
+                devices.send_message(title="Новое видео🔥",
+                                     body="Кликните сюда чтобы посмотреть видео " + instance.title)
+                for device in devices:
+                    Notification.objects.create(user=device.user,
+                                                title="Новое видео🔥",
+                                                video=instance,
+                                                body="Кликните сюда чтобы посмотреть видео " + instance.title,
+                                                image=instance.image)
+                devices.send_message(title="Новое видео🔥",
+                                     body="Кликните сюда чтобы посмотреть видео " + instance.title)
+            except:
+                pass
+    else:
+        pass
+
+
 @receiver(post_save, sender=MyVideo)
 def my_video_post_save_receiver(sender, instance, created, *args, **kwargs):
     if created:
-        if instance.is_active == True and instance.status == '3':
+        if instance.is_active == True and instance.status == '2':
             try:
                 users = User.objects.filter(
-                    Q(profile__balance_lt=10) | Q(profile__withdrawn_balance=0))
+                    Q(profile__balance_lt=10) | Q(
+                        profile__withdrawn_balance=0))
                 devices = FCMDevice.objects.filter(user__in=users)
                 devices.send_message(title="Новое видео🔥",
                                      body="Кликните сюда чтобы посмотреть видео " + instance.title)
