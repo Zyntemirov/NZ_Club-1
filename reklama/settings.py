@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'video.apps.VideoConfig',
     'cashbox.apps.CashboxConfig',
+    'seasonal.apps.SeasonalConfig',
 ]
 
 FCM_DJANGO_SETTINGS = {
