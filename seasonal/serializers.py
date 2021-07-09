@@ -31,7 +31,7 @@ class CreateViewStoriesHistorySerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(required=True)
 
     class Meta:
-        model = Request
+        model = ViewStories
         fields = ['stories_id', 'user_id']
 
 
@@ -74,15 +74,15 @@ class SeasonalCommentDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class SeasonalCommentsDetailVideoSerializer(serializers.ModelSerializer):
+class SeasonalCommentsDetailApartmentSerializer(serializers.ModelSerializer):
     comments = SeasonalCommentDetailSerializer(many=True)
 
     class Meta:
-        model = SeasonalVideo
+        model = SeasonalApartment
         fields = ['comments']
 
 
-class SeasonalVideoSerializer(serializers.ModelSerializer):
+class SeasonalApartmentSerializer(serializers.ModelSerializer):
     views = serializers.SerializerMethodField('get_views_count')
     favorites = serializers.SerializerMethodField('get_favorites_count')
     comments = serializers.SerializerMethodField('get_comments_count')
@@ -90,73 +90,72 @@ class SeasonalVideoSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField('has_user_likes')
     likes = serializers.SerializerMethodField('get_likes_count')
 
-    def has_user_favorite(self, video):
-        if self.context["request"].user in video.favorites.all():
+    def has_user_favorite(self, apartment):
+        if self.context["request"].user in apartment.favorites.all():
             return True
         else:
             return False
 
-    def get_views_count(self, video):
-        return video.views.count()
+    def get_views_count(self, apartment):
+        return apartment.views.count()
 
-    def get_favorites_count(self, video):
-        return video.favorites.count()
+    def get_favorites_count(self, apartment):
+        return apartment.favorites.count()
 
-    def get_comments_count(self, video):
-        return video.comments.count()
+    def get_comments_count(self, apartment):
+        return apartment.comments.count()
 
-    def get_likes_count(self, video):
-        return video.likes.count()
+    def get_likes_count(self, apartment):
+        return apartment.likes.count()
 
-    def has_user_likes(self, video):
-        if self.context["request"].user in video.likes.all():
+    def has_user_likes(self, apartment):
+        if self.context["request"].user in apartment.likes.all():
             return True
         return False
 
     class Meta:
-        model = SeasonalVideo
-        fields = ['id', 'title', 'text', 'image', 'category', 'views',
+        model = SeasonalApartment
+        fields = ['id', 'name', 'description', 'cover_image', 'video_link', 'category', 'views',
                   'favorites', 'comments', 'is_favorite', 'get_type_display',
                   'is_liked', 'likes']
 
 
-class SeasonalVideoDetailSerializer(serializers.ModelSerializer):
+class SeasonalApartmentDetailSerializer(serializers.ModelSerializer):
     category = SeasonalCategorySerializer()
     views = serializers.SerializerMethodField('get_views_count')
     favorites = serializers.SerializerMethodField('get_favorites_count')
     comments_count = serializers.SerializerMethodField('get_comments_count')
-    owner = UserSerializer()
     is_favorite = serializers.SerializerMethodField('has_user_favorite')
     last_comment = serializers.SerializerMethodField('get_last_comment_text')
     likes = serializers.SerializerMethodField('get_likes')
     is_liked = serializers.SerializerMethodField('has_user_like')
     comments = SeasonalCommentDetailSerializer(many=True)
 
-    def has_user_favorite(self, video):
-        if self.context["request"].user in video.favorites.all():
+    def has_user_favorite(self, apartment):
+        if self.context["request"].user in apartment.favorites.all():
             return True
         else:
             return False
 
-    def has_user_like(self, video):
-        if self.context['request'].user in video.likes.all():
+    def has_user_like(self, apartment):
+        if self.context['request'].user in apartment.likes.all():
             return True
         return False
 
-    def get_views_count(self, video):
-        return video.views.count()
+    def get_views_count(self, apartment):
+        return apartment.views.count()
 
-    def get_favorites_count(self, video):
-        return video.favorites.count()
+    def get_favorites_count(self, apartment):
+        return apartment.favorites.count()
 
-    def get_comments_count(self, video):
-        return video.comments.count()
+    def get_comments_count(self, apartment):
+        return apartment.comments.count()
 
-    def get_last_comment_text(self, video):
-        if video.comments.all().last() is not None:
+    def get_last_comment_text(self, apartment):
+        if apartment.comments.all().last() is not None:
             return {
-                'text': str(video.comments.all().last().text),
-                'user': str(video.comments.all().last().user)
+                'text': str(apartment.comments.all().last().text),
+                'user': str(apartment.comments.all().last().user)
             }
         else:
             return None
@@ -165,45 +164,25 @@ class SeasonalVideoDetailSerializer(serializers.ModelSerializer):
         return obj.likes.count()
 
     class Meta:
-        model = SeasonalVideo
-        fields = ['id', 'category', 'title', 'text', 'video', 'create_at',
-                  'owner', 'views', 'favorites', 'comments_count', 'is_favorite',
-                  'last_comment', 'likes', 'is_liked', 'get_type_display', 'comments']
+        model = SeasonalApartment
+        fields = ['id', 'category', 'name', 'description', 'video_link', 'create_at',
+                  'views', 'favorites', 'comments_count', 'is_favorite',
+                  'last_comment', 'likes', 'is_liked', 'comments']
         depth = True
 
 
-class SeasonalViewsDetailVideoSerializer(serializers.ModelSerializer):
+class SeasonalViewsDetailApartmentSerializer(serializers.ModelSerializer):
     views = UserSerializer(many=True)
 
     class Meta:
-        model = SeasonalVideo
+        model = SeasonalApartment
         fields = ['views']
-
-
-class SeasonalVideoUpdateDetailSerializer(serializers.ModelSerializer):
-    video_id = serializers.IntegerField(required=True)
-    user_id = serializers.IntegerField(required=True)
-    view = serializers.BooleanField(default=False)
-    favorite = serializers.BooleanField(default=False)
-
-    class Meta:
-        model = SeasonalVideo
-        fields = ['video_id', 'user_id', 'view', 'favorite']
-
-
-class SeasonalUpVideoInSevenDaySerializer(serializers.ModelSerializer):
-    video_id = serializers.IntegerField(required=True)
-    owner_id = serializers.IntegerField(required=True)
-
-    class Meta:
-        model = SeasonalVideo
-        fields = ['video_id', 'owner_id']
 
 
 class SeasonalCreateCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SeasonalComment
-        fields = ['text', 'video', 'parent']
+        fields = ['text', 'apartment', 'parent']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -211,7 +190,20 @@ class SeasonalCreateCommentSerializer(serializers.ModelSerializer):
         return comment
 
 
-class SeasonalCreateRequestSerializer(serializers.ModelSerializer):
+class RoomSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Request
-        fields = ['address', 'phone', 'sum', 'promo_code', 'category']
+        model = Room
+        fields = '__all__'
+
+
+class ApartmentRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SeasonalApartment
+        fields = ('name', 'description', 'address', 'phone', 'video_by_user', 'category', 'cover_image',)
+
+
+class BookingRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookingRequest
+        fields = '__all__'

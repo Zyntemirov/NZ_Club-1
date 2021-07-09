@@ -9,6 +9,7 @@ from django_resized import ResizedImageField
 from django.utils.safestring import mark_safe
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
+from django.core.validators import FileExtensionValidator
 
 
 class Category(models.Model):
@@ -31,7 +32,51 @@ class Category(models.Model):
         return self.title
 
 
-class SeasonalVideo(models.Model):
+class Room(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_('Название'))
+    description = models.TextField(verbose_name=_('Описание'))
+    capacity = models.IntegerField(verbose_name=_('Вместимость'))
+    price = models.FloatField(verbose_name=_('Цена'))
+    room_limit = models.IntegerField(verbose_name=_('Колличество номеров'))
+    apartment = models.ForeignKey('SeasonalApartment', related_name='apartment', verbose_name=_('Пансионат'),
+                                  on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Номер'
+        verbose_name_plural = 'Номера'
+
+    def __str__(self):
+        return self.name
+
+
+class BookingRequest(models.Model):
+    entry_date = models.DateTimeField(default=datetime.now, verbose_name=_('Дата въезда'))
+    exit_date = models.DateTimeField(default=datetime.now, verbose_name=_('Дата выезда'))
+    room = models.ForeignKey('Room', related_name='room', verbose_name=_('Номер'),
+                             on_delete=models.CASCADE)
+    phone = models.CharField(max_length=12, verbose_name=_('Номер телефона'))
+    comment = models.TextField(verbose_name=_('Коментарий'))
+    adult_count = models.IntegerField(verbose_name=_('Количество взрослых'))
+    kids_count = models.IntegerField(verbose_name=_('Количество детей'))
+    room_count = models.IntegerField(verbose_name=_('Количество номеров'))
+    total_price = models.IntegerField(verbose_name=_('Сумма брони'))
+
+    class Meta:
+        verbose_name = _('Заявка на заселение')
+        verbose_name_plural = _('Заявки на заселение')
+
+
+class ApartmentImage(models.Model):
+    image = models.ImageField(verbose_name=_('Изображение'), upload_to='seasonal/image/')
+    apartment = models.ForeignKey('SeasonalApartment', verbose_name=_('Пансинат'),
+                                           related_name='seasonal_apartment', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('Изображение')
+        verbose_name_plural = _('Список изображений')
+
+
+class SeasonalApartment(models.Model):
     STATUS = (
         ('1', 'Отклонено'),
         ('2', 'Активно'),
@@ -42,70 +87,57 @@ class SeasonalVideo(models.Model):
         ('2', 'Премиум'),
         ('3', 'Благотворительность'),
     )
-    title = models.CharField(max_length=100, verbose_name="Название")
-    text = models.TextField(verbose_name="Описание")
+    name = models.CharField(max_length=100, verbose_name="Название")
+    description = models.TextField(verbose_name="Описание")
+    address = models.CharField(max_length=200, verbose_name="Адрес")
+    phone = models.CharField(max_length=15, verbose_name="Телефон номер")
+    video_by_user = models.FileField(upload_to='videos_uploaded', blank=True, null=True,
+                                     validators=[FileExtensionValidator(
+                                         allowed_extensions=['MOV', 'avi', 'mp4', 'webm', 'mkv'])])
+    video_link = models.CharField(max_length=255, null=True, blank=True,
+                                  verbose_name="Ютуб ссылка",
+                                  help_text="Ссылка на видео для публикации")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,
+                                 verbose_name="Категория")
+    cover_image = ResizedImageField(size=[500, 300], upload_to='seasonal/apartment/',
+                                    verbose_name=_('Обложка'), blank=True, null=True)
+
     views = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                                   related_name='video_views',
+                                   related_name='apartment_views',
                                    verbose_name="Просмотров")
     watched_videos = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                             related_name='watcher')
     favorites = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                        related_name='seasonal_favorites')
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, name='likes')
-    video = models.CharField(max_length=255, null=True,
-                             verbose_name="Ютуб ссылка",
-                             help_text="Просмотр видео")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE,
-                                 related_name='videos',
-                                 verbose_name="Категория")
+    is_checked = models.BooleanField(default=False, verbose_name="Провереннный")
     type = models.CharField(verbose_name="Тип", choices=TYPE, max_length=20)
-    status = models.CharField("Статус", max_length=20, choices=STATUS,
-                              null=True, blank=True)
+    # status = models.CharField("Статус", max_length=20, choices=STATUS,
+    #                           null=True, blank=True)
     create_at = models.DateTimeField(default=datetime.now,
                                      verbose_name="Дата создания")
-    is_active = models.BooleanField(default=True, verbose_name="Активный")
-    is_top = models.BooleanField(default=True, verbose_name="Топ")
-    image = models.ImageField(upload_to='seasonal/videos/', verbose_name="Обложка")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE, related_name='owner',
                               verbose_name="Владелец")
 
     class Meta:
-        verbose_name = _("Видео")
-        verbose_name_plural = _("Видео")
+        verbose_name = _("Пансионат")
+        verbose_name_plural = _("Пансионаты")
 
     def __str__(self):
-        return self.title
-
-    def save(self, *args, **kwargs):
-        if self.status == '2':
-            self.is_active = True
-        else:
-            self.is_active = False
-
-        super(SeasonalVideo, self).save(*args, **kwargs)
-        img = Image.open(self.image)
-        width, height = img.size
-        if width > 1080:
-            ratio = float(width / 1080)
-            width = int(width / ratio)
-            height = int(height / ratio)
-            img = img.resize((width, height), PIL.Image.ANTIALIAS)
-            img.save(self.image.path, quality=100, optimize=True)
-        else:
-            img.save(self.image.path, quality=100, optimize=True)
+        return self.name
 
 
-@receiver(pre_delete, sender=SeasonalVideo)
+@receiver(pre_delete, sender=SeasonalApartment)
 def delete_image(sender, instance, **kwargs):
     # Pass false so FileField doesn't save the model.
     instance.image.delete(False)
 
 
 class SeasonalComment(models.Model):
-    video = models.ForeignKey(SeasonalVideo, on_delete=models.CASCADE,
-                              related_name='comments',
-                              verbose_name="Ютуб ссылка")
+    apartment = models.ForeignKey(SeasonalApartment, on_delete=models.CASCADE,
+                                  related_name='comments',
+                                  verbose_name="Ютуб ссылка")
     text = models.TextField(verbose_name="Текст")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name='comment_user',
@@ -125,24 +157,6 @@ class SeasonalComment(models.Model):
 
     def __str__(self):
         return self.text
-
-
-class Request(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE,
-                                 related_name='categories',
-                                 verbose_name="Категория")
-    address = models.CharField(max_length=200, verbose_name="Адрес")
-    phone = models.CharField(max_length=15, verbose_name="Телефон номер")
-    sum = models.IntegerField(default=0, verbose_name="Цена")
-    promo_code = models.CharField(max_length=40, blank=True,
-                                  verbose_name="Промо код")
-    create_at = models.DateTimeField(default=datetime.now,
-                                     verbose_name="Дата создания")
-    is_checked = models.BooleanField(default=False, verbose_name="Провереннный")
-
-    class Meta:
-        verbose_name = _("Заявка")
-        verbose_name_plural = _("Заявки")
 
 
 class Stories(models.Model):
@@ -239,8 +253,7 @@ class ViewHistory(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name='user',
                              verbose_name="Пользователь")
-    bonus = models.IntegerField(default=0, verbose_name="Бонус")
-    video = models.ForeignKey(SeasonalVideo, on_delete=models.CASCADE,
+    apartment = models.ForeignKey(SeasonalApartment, on_delete=models.CASCADE,
                               related_name='histories',
                               verbose_name="Ютуб ссылка")
     create_at = models.DateTimeField(default=datetime.now,
@@ -249,13 +262,3 @@ class ViewHistory(models.Model):
     class Meta:
         verbose_name = _("Просмотр видео")
         verbose_name_plural = _("Просмотры видео")
-
-
-# class BookingRequest(models.Model):
-#     entry_date = models.DateTimeField(default=datetime.now, verbose_name=_('Дата въезда'))
-#     exit_date = models.DateTimeField(default=datetime.now, verbose_name=_('Дата выезда'))
-#     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='room', verbose_name=_('Номер'))
-#
-#     class Meta:
-#         verbose_name = _('Заявка на заселение')
-#         verbose_name_plural = _('Заявки на заселение')
