@@ -150,7 +150,8 @@ class Comment(models.Model):
                               related_name='comments',
                               verbose_name="Ютуб ссылка")
     text = models.TextField(verbose_name="Текст")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
                              related_name='comments',
                              verbose_name="Пользователь")
     parent = models.ForeignKey('self', verbose_name="Родитель",
@@ -186,7 +187,8 @@ class Request(models.Model):
                                   verbose_name="Промо код")
     create_at = models.DateTimeField(default=datetime.now,
                                      verbose_name="Дата создания")
-    is_checked = models.BooleanField(default=False, verbose_name="Провереннный")
+    is_checked = models.BooleanField(default=False,
+                                     verbose_name="Провереннный")
 
     class Meta:
         verbose_name = _("Заявка")
@@ -200,6 +202,7 @@ class Banner(models.Model):
     image = models.ImageField(upload_to='banners/', verbose_name="Обложка")
     views = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                    related_name='views')
+    block = models.PositiveIntegerField()
     order = models.PositiveIntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -240,7 +243,8 @@ def banner_image(sender, instance, **kwargs):
 
 
 class ViewBanner(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
                              related_name='banners',
                              verbose_name="Пользователь")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE,
@@ -255,7 +259,8 @@ class ViewBanner(models.Model):
 
 
 class LikeBanner(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
                              related_name='like_banners',
                              verbose_name="Пользователь")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE,
@@ -275,13 +280,15 @@ class ComplaintBanner(models.Model):
         ('1', '1'),
         ('2', '2'),
     )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
                              related_name='complaint_banners',
                              verbose_name="Пользователь")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE,
                                related_name='complaint_banners',
                                verbose_name="Баннер видео")
-    type = models.CharField("Типы жалоба", choices=TYPE_COMPLAINT, max_length=2)
+    type = models.CharField("Типы жалоба", choices=TYPE_COMPLAINT,
+                            max_length=2)
     text = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -290,7 +297,8 @@ class ComplaintBanner(models.Model):
 
 
 class ViewHistory(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
                              related_name='histories',
                              verbose_name="Пользователь")
     bonus = models.IntegerField(default=0, verbose_name="Бонус")
