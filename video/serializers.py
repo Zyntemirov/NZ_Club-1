@@ -234,7 +234,7 @@ class BannerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Banner
-        fields = ['id', 'video', 'url', 'image', 'views', 'is_liked',
+        fields = ['id', 'video', 'url', 'image', 'views', 'is_liked', 'block',
                   'likes', 'created']
 
     def get_likes(self, obj):

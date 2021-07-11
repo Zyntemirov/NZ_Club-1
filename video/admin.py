@@ -169,9 +169,9 @@ class VideoTrainingAdmin(admin.ModelAdmin):
 
 @admin.register(Banner)
 class BannerAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ['id', 'image', 'video']
-    list_display_links = list_display
-
+    list_display = ['id', 'image', 'video', 'block']
+    list_display_links =  ['id', 'image', 'video']
+    list_editable = ('block',)
     exclude = ('views',)
 
     # def has_add_permission(self, request):

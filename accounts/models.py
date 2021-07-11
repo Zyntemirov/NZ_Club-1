@@ -23,11 +23,10 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        return f'{self.username} -> {self.profile.get_region_display()}'
+        return f'{self.phone}->{self.username}-> {self.profile.get_region_display()}'
+
     def info(self):
         return f'{self.phone} -> {self.profile.get_region_display()}'
-
-
 
     # def save(self, *args, **kwargs):
     #     try:
