@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from video.serializers import UserSerializer
+from video.serializers import UserSerializer, RecursiveSerializer, FilterReviewSerializer
 from seasonal.models import *
 
 
@@ -69,9 +69,21 @@ class SeasonalCategorySerializer(serializers.ModelSerializer):
 
 
 class SeasonalCommentDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=True)
+
     class Meta:
         model = SeasonalComment
         fields = '__all__'
+
+
+class CommentDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    children = RecursiveSerializer(many=True)
+
+    class Meta:
+        list_serializer_class = FilterReviewSerializer
+        model = SeasonalComment
+        fields = ['id', 'user', 'text', 'create_at', 'children']
 
 
 class SeasonalCommentsDetailApartmentSerializer(serializers.ModelSerializer):
@@ -129,7 +141,8 @@ class SeasonalApartmentDetailSerializer(serializers.ModelSerializer):
     last_comment = serializers.SerializerMethodField('get_last_comment_text')
     likes = serializers.SerializerMethodField('get_likes')
     is_liked = serializers.SerializerMethodField('has_user_like')
-    comments = SeasonalCommentDetailSerializer(many=True)
+    comments = CommentDetailSerializer(many=True)
+    owner = UserSerializer()
 
     def has_user_favorite(self, apartment):
         if self.context["request"].user in apartment.favorites.all():
@@ -167,7 +180,7 @@ class SeasonalApartmentDetailSerializer(serializers.ModelSerializer):
         model = SeasonalApartment
         fields = ['id', 'category', 'name', 'description', 'video_link', 'create_at',
                   'views', 'favorites', 'comments_count', 'is_favorite',
-                  'last_comment', 'likes', 'is_liked', 'comments']
+                  'last_comment', 'likes', 'is_liked', 'comments', 'owner']
         depth = True
 
 
