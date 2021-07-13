@@ -69,14 +69,6 @@ class SeasonalCategorySerializer(serializers.ModelSerializer):
 
 
 class SeasonalCommentDetailSerializer(serializers.ModelSerializer):
-    user = UserSerializer(many=True)
-
-    class Meta:
-        model = SeasonalComment
-        fields = '__all__'
-
-
-class CommentDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     children = RecursiveSerializer(many=True)
 
@@ -141,7 +133,7 @@ class SeasonalApartmentDetailSerializer(serializers.ModelSerializer):
     last_comment = serializers.SerializerMethodField('get_last_comment_text')
     likes = serializers.SerializerMethodField('get_likes')
     is_liked = serializers.SerializerMethodField('has_user_like')
-    comments = CommentDetailSerializer(many=True)
+    comments = SeasonalCommentDetailSerializer(many=True)
     owner = UserSerializer()
 
     def has_user_favorite(self, apartment):
