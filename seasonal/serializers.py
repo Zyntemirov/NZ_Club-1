@@ -86,7 +86,14 @@ class SeasonalCommentsDetailApartmentSerializer(serializers.ModelSerializer):
         fields = ['comments']
 
 
+class ApartmentImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApartmentImage
+        fields = '__all__'
+
+
 class SeasonalApartmentSerializer(serializers.ModelSerializer):
+    images = ApartmentImageSerializer(many=True)
     views = serializers.SerializerMethodField('get_views_count')
     favorites = serializers.SerializerMethodField('get_favorites_count')
     comments = serializers.SerializerMethodField('get_comments_count')
@@ -121,10 +128,11 @@ class SeasonalApartmentSerializer(serializers.ModelSerializer):
         model = SeasonalApartment
         fields = ['id', 'name', 'description', 'cover_image', 'video_link', 'category', 'views',
                   'favorites', 'comments', 'is_favorite', 'get_type_display',
-                  'is_liked', 'likes']
+                  'is_liked', 'likes', 'images']
 
 
 class SeasonalApartmentDetailSerializer(serializers.ModelSerializer):
+    images = ApartmentImageSerializer(many=True)
     category = SeasonalCategorySerializer()
     views = serializers.SerializerMethodField('get_views_count')
     favorites = serializers.SerializerMethodField('get_favorites_count')
@@ -172,7 +180,7 @@ class SeasonalApartmentDetailSerializer(serializers.ModelSerializer):
         model = SeasonalApartment
         fields = ['id', 'category', 'name', 'description', 'video_link', 'create_at',
                   'views', 'favorites', 'comments_count', 'is_favorite',
-                  'last_comment', 'likes', 'is_liked', 'comments', 'owner']
+                  'last_comment', 'likes', 'is_liked', 'comments', 'owner', 'images']
         depth = True
 
 

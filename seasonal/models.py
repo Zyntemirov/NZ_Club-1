@@ -69,7 +69,7 @@ class BookingRequest(models.Model):
 class ApartmentImage(models.Model):
     image = models.ImageField(verbose_name=_('Изображение'), upload_to='seasonal/image/')
     apartment = models.ForeignKey('SeasonalApartment', verbose_name=_('Пансинат'),
-                                           related_name='seasonal_apartment', on_delete=models.CASCADE)
+                                  related_name='images', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Изображение')
