@@ -208,9 +208,16 @@ class BookingRequestView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(user=self.request.user)
 
         return Response(serializer.data, status.HTTP_201_CREATED)
+
+
+class BookingHistory(ListAPIView):
+    serializer_class = BookingHistorySerializer
+
+    def get_queryset(self):
+        return BookingRequest.objects.filter(user=self.request.user)
 
 
 class RoomBookingDateView(GenericAPIView):
