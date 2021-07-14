@@ -60,6 +60,9 @@ class BookingRequest(models.Model):
     kids_count = models.IntegerField(verbose_name=_('Количество детей'))
     room_count = models.IntegerField(verbose_name=_('Количество номеров'))
     total_price = models.IntegerField(verbose_name=_('Сумма брони'))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE, related_name='booking_user',
+                             verbose_name="Пользователь")
 
     class Meta:
         verbose_name = _('Заявка на заселение')

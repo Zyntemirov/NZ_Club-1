@@ -210,13 +210,21 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class ApartmentRequestSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = SeasonalApartment
         fields = ('name', 'description', 'address', 'phone', 'video_by_user', 'category', 'cover_image',)
 
 
 class BookingRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookingRequest
+        exclude = ('user',)
+
+
+class BookingHistorySerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    room = RoomSerializer()
+
     class Meta:
         model = BookingRequest
         fields = '__all__'
