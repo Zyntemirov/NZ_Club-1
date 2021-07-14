@@ -222,3 +222,24 @@ class RoomBookingDateView(GenericAPIView):
         for query in queryset:
             reserved_list.append({'entry_date': query.entry_date, 'exit_date': query.exit_date})
         return Response(reserved_list)
+
+
+class UserWatchedApartmentView(UpdateAPIView):
+    serializer_class = CreateViewApartmentHistorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        apartment = SeasonalApartment.objects.get(id=request.data['apartment_id'])
+        user = get_user_model().objects.get(id=request.data['user_id'])
+        if apartment and user:
+            if user not in apartment.views.all():
+                ViewHistory.objects.create(
+                    user=user,
+                    apartment=apartment
+                )
+                apartment.views.add(user)
+                apartment.save()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

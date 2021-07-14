@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('category/list', CategoryListView.as_view()),
     path('views/apartment/detail/<int:id>', ViewsDetailApartmentView.as_view()),
+    path('apartment/update/user_watched/', UserWatchedApartmentView.as_view()),
     path('apartment/by/me/', ApartmentView.as_view()),
     path('apartment/comments/detail/<int:apartment_id>', CommentsDetailApartmentView.as_view()),
     path('create/comment', CreateCommentView.as_view()),

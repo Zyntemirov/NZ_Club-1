@@ -220,3 +220,12 @@ class BookingRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookingRequest
         fields = '__all__'
+
+
+class CreateViewApartmentHistorySerializer(serializers.ModelSerializer):
+    apartment_id = serializers.IntegerField(required=True)
+    user_id = serializers.IntegerField(required=True)
+
+    class Meta:
+        model = ViewHistory
+        fields = ['apartment_id', 'user_id']
