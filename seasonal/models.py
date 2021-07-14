@@ -254,8 +254,8 @@ class ViewHistory(models.Model):
                              related_name='user',
                              verbose_name="Пользователь")
     apartment = models.ForeignKey(SeasonalApartment, on_delete=models.CASCADE,
-                              related_name='histories',
-                              verbose_name="Ютуб ссылка")
+                                  related_name='histories',
+                                  verbose_name="Ютуб ссылка")
     create_at = models.DateTimeField(default=datetime.now,
                                      verbose_name="Дата создания")
 
