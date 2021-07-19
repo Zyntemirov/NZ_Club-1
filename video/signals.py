@@ -50,26 +50,26 @@ def video_post_save_receiver(sender, instance, created, *args, **kwargs):
         pass
 
 
-@receiver(post_save, sender=MyVideo)
-def my_video_post_save_receiver(sender, instance, created, *args, **kwargs):
-    if created:
-        if instance.is_active == True and instance.status == '2':
-            try:
-                users = User.objects.filter(
-                    Q(profile__balance_lt=10) | Q(
-                        profile__withdrawn_balance=0))
-                devices = FCMDevice.objects.filter(user__in=users)
-                devices.send_message(title="Новое видео🔥",
-                                     body="Кликните сюда чтобы посмотреть видео " + instance.title)
-                Notification.objects.bulk_create(
-                    [Notification(user=device.user, title="Новое видео🔥",
-                                  video=instance,
-                                  body="Кликните сюда чтобы посмотреть видео " + instance.title,
-                                  image=instance.image) for device in devices])
-            except:
-                pass
-    else:
-        pass
+# @receiver(post_save, sender=MyVideo)
+# def my_video_post_save_receiver(sender, instance, created, *args, **kwargs):
+#     if created:
+#         if instance.is_active == True and instance.status == '2':
+#             try:
+#                 users = User.objects.filter(
+#                     Q(profile__balance_lt=10) | Q(
+#                         profile__withdrawn_balance=0))
+#                 devices = FCMDevice.objects.filter(user__in=users)
+#                 devices.send_message(title="Новое видео🔥",
+#                                      body="Кликните сюда чтобы посмотреть видео " + instance.title)
+#                 Notification.objects.bulk_create(
+#                     [Notification(user=device.user, title="Новое видео🔥",
+#                                   video=instance,
+#                                   body="Кликните сюда чтобы посмотреть видео " + instance.title,
+#                                   image=instance.image) for device in devices])
+#             except:
+#                 pass
+#     else:
+#         pass
 
 
 @receiver(post_save, sender=Comment)
