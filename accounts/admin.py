@@ -11,7 +11,8 @@ class UserProfileInline(admin.StackedInline):
 
     def get_fields(self, request, obj=None):
         if request.user.is_superuser:
-            return ['agent', 'gender', 'region', 'view_count', 'balance', 'withdrawn_balance', 'image', 'birth_date']
+            return ['agent', 'gender', 'region', 'view_count', 'balance',
+                    'withdrawn_balance', 'image', 'birth_date']
         return ['agent', 'gender', 'region', 'image', 'birth_date']
 
 
@@ -42,6 +43,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('phone', 'username', 'password1', 'password2'),
         }),
     )
+    search_fields = ('username', 'phone')
 
     def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser:
