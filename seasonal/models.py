@@ -131,12 +131,6 @@ class SeasonalApartment(models.Model):
         return self.name
 
 
-@receiver(pre_delete, sender=SeasonalApartment)
-def delete_image(sender, instance, **kwargs):
-    # Pass false so FileField doesn't save the model.
-    instance.image.delete(False)
-
-
 class SeasonalComment(models.Model):
     apartment = models.ForeignKey(SeasonalApartment, on_delete=models.CASCADE,
                                   related_name='comments',
