@@ -172,12 +172,12 @@ class ApartmentRequestView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         apartment = serializer.save(owner=request.user)
 
-        try:
+        if request.FILES.getlist('images'):
             for image in request.FILES.getlist('images'):
                 ad_image = ApartmentImage(apartment=apartment, image=image)
                 ad_image.save()
-        except:
-            pass
+        else:
+            return Response({'image': 'This field is required!'}, status.HTTP_403_FORBIDDEN)
 
         return Response(serializer.data, status.HTTP_201_CREATED)
 

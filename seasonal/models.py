@@ -117,7 +117,7 @@ class SeasonalApartment(models.Model):
     type = models.CharField(verbose_name="Тип", choices=TYPE, max_length=20)
     # status = models.CharField("Статус", max_length=20, choices=STATUS,
     #                           null=True, blank=True)
-    create_at = models.DateTimeField(default=datetime.now,
+    create_at = models.DateTimeField(auto_now_add=True,
                                      verbose_name="Дата создания")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE, related_name='owner',
