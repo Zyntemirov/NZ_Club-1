@@ -139,7 +139,7 @@ class TransferHistoryUserView(viewsets.generics.ListAPIView):
                 Q(sender=self.kwargs['user_id']) | Q(
                     receiver=user.username)).filter(
                 create_at__gte=self.kwargs['from_date'],
-                create_at__lte=self.kwargs['before_date'])
+                create_at__lte=self.kwargs['before_date']).order_by('create_at')
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
