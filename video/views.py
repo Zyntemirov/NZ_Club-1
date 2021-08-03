@@ -37,7 +37,7 @@ class VideosView(viewsets.generics.ListAPIView):
         user = self.request.user
         if user:
             queryset = Video.objects.filter(
-                Q(is_top=False) | Q(views__in=[user])).distinct()[::-1]
+                Q(is_top=False) | Q(views__in=[user])).distinct()
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
