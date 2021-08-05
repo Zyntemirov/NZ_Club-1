@@ -1,6 +1,7 @@
 from django.contrib import admin
 from seasonal.models import *
 from adminsortable2.admin import SortableAdminMixin
+from django.utils.safestring import mark_safe
 
 
 class RoomInline(admin.TabularInline):
@@ -21,6 +22,8 @@ class RoomInline(admin.TabularInline):
 
 class ImageInline(admin.TabularInline):
     model = ApartmentImage
+    fields = ('image', 'apartment')
+    readonly_fields = ('download_img', )
 
     def has_add_permission(self, request, obj):
         return True
@@ -33,6 +36,11 @@ class ImageInline(admin.TabularInline):
 
     def has_view_permission(self, request, obj=None):
         return True
+    
+    def download_img(self, obj):
+        return mark_safe(f'<a href="{obj.image.url}" download >скачать</a>')
+
+    download_img.short_description = 'Скачать изображение'
 
 
 class ViewStoriesAdmin(admin.ModelAdmin):
@@ -61,6 +69,9 @@ class ApartmentAdmin(admin.ModelAdmin):
     list_display_links = list_display
     exclude = ('favorites', 'views', 'likes', 'watched_videos',)
     inlines = [RoomInline, ImageInline]
+    readonly_fields = ('download_video', 'download_img')
+    fields = ('name', 'description', 'address', 'phone', ('video_by_user', 'download_video'),
+            'video_link', 'category', 'city', ('cover_image', 'download_img'), 'is_checked', 'type', 'owner')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -77,6 +88,15 @@ class ApartmentAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return [inline(self.model, self.admin_site) for inline in self.inlines]
         return []
+    
+    def download_video(self, obj):
+        return mark_safe(f'<a href="{obj.imvideo_by_userage.url}" download >скачать</a>')
+
+    def download_img(self, obj):
+        return mark_safe(f'<a href="{obj.cover_image.url}" download >скачать</a>')
+    
+    download_video.short_description = 'скачать видео'
+    download_img.short_description = 'скачать изображения'
 
 
 class SeasonalCommentAdmin(admin.ModelAdmin):
