@@ -11,6 +11,7 @@ urlpatterns = [
     path('stories/complaint/', CreateStoriesComplaintView.as_view()),
 
     path('category/list', CategoryListView.as_view()),
+    path('city/list', CityListView.as_view()),
     path('views/apartment/detail/<int:id>', ViewsDetailApartmentView.as_view()),
     path('apartment/update/user_watched/', UserWatchedApartmentView.as_view()),
     path('apartment/by/me/', ApartmentView.as_view()),
@@ -25,7 +26,6 @@ urlpatterns = [
     path('apartment/request/room/', ApartmentRequestRoomView.as_view()),
     path('apartment/room/list/<int:apartment_id>', ApartmentRoomListView.as_view()),
     path('booking/request/', BookingRequestView.as_view()),
-    path('booking/success/', BookingNotification.as_view()),
     path('booking/history/', BookingHistory.as_view()),
     path('room/booking_date/<int:room_id>/', RoomBookingDateView.as_view())
 ]
