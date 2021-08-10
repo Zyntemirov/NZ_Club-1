@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% block subject %}
+{% blocktrans %}Account activation on NZ{% endblocktrans %}
+{% endblock subject %}
+
+{% block html_body %}
+<p>{% blocktrans %}You're receiving this email because you need to finish activation process on NZ.{% endblocktrans %}</p>
+
+<p>{% trans "Enter your code for activate account:" %}</p>
+<p>Code : {{ uid }}</p>
+<p>{% trans "Thanks for using our app!" %}</p>
+
+{% endblock html_body %}

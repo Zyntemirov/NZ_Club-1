@@ -1,0 +1,9 @@
+{% extends 'admin/change_form.html' %}
+
+{% block submit_buttons_top %}
+    {{ block.super }}
+    <div class="submit-row">
+            <input type="submit" value="Проверенный" name="approve">
+            <input type="submit" value="Отклонить" name="disapprove">
+    </div>
+{% endblock %}
