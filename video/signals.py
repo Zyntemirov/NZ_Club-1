@@ -34,8 +34,8 @@ def video_post_save_receiver(sender, instance, created, *args, **kwargs):
         if instance.is_active == True and instance.status == '2':
             try:
                 devices = FCMDevice.objects.all()
-                devices.send_message(title="Новое видео🔥",
-                                     body="Кликните сюда чтобы посмотреть видео " + instance.title)
+                # devices.send_message(title="Новое видео🔥",
+                #                      body="Кликните сюда чтобы посмотреть видео " + instance.title)
                 for device in devices:
                     Notification.objects.create(user=device.user,
                                                 title="Новое видео🔥",
