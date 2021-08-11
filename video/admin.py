@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db.models import Q
+from django.http.response import HttpResponseRedirect
 from accounts.models import User
 from video.models import *
 from adminsortable2.admin import SortableAdminMixin
@@ -34,6 +35,8 @@ class VideoAdmin(admin.ModelAdmin):
     autocomplete_fields = ['owner']
     # list_editable = ['status', ]
     inlines = [TariffInline]
+    change_form_template = 'admin/changeform.html'
+    save_on_top = True
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -43,6 +46,18 @@ class VideoAdmin(admin.ModelAdmin):
 
     def make_activation(self, request, queryset):
         queryset.update(status='2')
+    
+    def response_change(self, request, obj):
+        if request.user.is_superuser:
+            if 'approve' in request.POST:
+                obj.update(status='2', is_active=True)
+                self.message_user(request, 'Видео активна')
+                return HttpResponseRedirect('.')
+            elif 'disapprove' in request.POST:
+                obj.update(status='1', is_active=False)
+                self.message_user(request, 'Видео отключен')
+                return HttpResponseRedirect('.')
+        return super().response_change(request, obj)
 
     def get_owner_region(self, obj):
         return f'{obj.owner.profile.get_region_display()}'
@@ -70,6 +85,7 @@ class VideoAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if request.user.is_superuser:
             # do push notif soon
+            obj.is_active = True
             super().save_model(request, obj, form, change)
         else:
             obj.status = '3'
@@ -138,9 +154,53 @@ class FAQAdmin(admin.ModelAdmin):
     search_fields = ['question', 'reply']
 
 
-class RequestAdmin(admin.ModelAdmin):
-    list_display = ['category', 'phone', 'create_at', 'is_checked']
-    search_fields = ['phone', ]
+@admin.register(Request2)
+class Request2Admin(admin.ModelAdmin):
+    list_display = ['owner', 'title', 'category', 'status',]
+    readonly_fields = ['create_at',]
+    list_display_links = ['owner', 'title', 'category']
+    search_fields = ['title', 'text']
+    list_filter = ['owner__username']
+    change_form_template = 'admin/RequestChangeForm.html'
+    save_on_top = True
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(owner=request.user)
+
+    def response_change(self, request, obj):
+        if request.user.is_superuser:
+            if 'approve' in request.POST:
+                obj.update(status='2')
+                Video.objects.create(title=obj.title,
+                                    text=obj.text,
+                                    phone_1=obj.phone,
+                                    video=obj.video,
+                                    is_top=obj.is_top,
+                                    category=obj.category,
+                                    image=obj.image,
+                                    owner=obj.owner
+                                    )
+                self.message_user(request, 'Видео создан')
+                return HttpResponseRedirect('.')
+            elif 'disapprove' in request.POST:
+                obj.update(status='1')
+                self.message_user(request, 'Запрос откланен')
+                return HttpResponseRedirect('.')
+        return super().response_change(request, obj)
+
+    def get_owner_region(self, obj):
+        return f'{obj.owner.profile.get_region_display()}'
+
+    get_owner_region.short_description = 'Регион'
+
+    def get_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ['title', 'text', 'phone', 'video', 'is_top', 'category', 'image', 'create_at', 'status', 'owner']
+        else:
+            return ['title', 'text', 'phone', 'video', 'category', 'image', 'owner', 'create_at']
 
 
 @admin.register(ViewHistory)
@@ -169,9 +229,8 @@ class VideoTrainingAdmin(admin.ModelAdmin):
 
 @admin.register(Banner)
 class BannerAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ['id', 'image', 'video', 'block']
+    list_display = ['id', 'image', 'video']
     list_display_links =  ['id', 'image', 'video']
-    list_editable = ('block',)
     exclude = ('views',)
 
     # def has_add_permission(self, request):
@@ -182,7 +241,6 @@ class BannerAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(FAQ, FAQAdmin)
-admin.site.register(Request, RequestAdmin)
 admin.site.register(ViewBanner, ViewBannerAdmin)
 admin.site.register(VideoTraining, VideoTrainingAdmin)
 admin.site.register(ComplaintBanner)

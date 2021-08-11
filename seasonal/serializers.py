@@ -68,6 +68,12 @@ class SeasonalCategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SeasonalCitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = '__all__'
+
+
 class SeasonalCommentDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     children = RecursiveSerializer(many=True)
@@ -126,7 +132,7 @@ class SeasonalApartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SeasonalApartment
-        fields = ['id', 'name', 'description', 'cover_image', 'video_link', 'category', 'views',
+        fields = ['id', 'name', 'description', 'cover_image', 'video_link', 'category', 'city', 'views',
                   'favorites', 'comments', 'is_favorite', 'get_type_display',
                   'is_liked', 'likes', 'images']
 
@@ -134,6 +140,7 @@ class SeasonalApartmentSerializer(serializers.ModelSerializer):
 class SeasonalApartmentDetailSerializer(serializers.ModelSerializer):
     images = ApartmentImageSerializer(many=True)
     category = SeasonalCategorySerializer()
+    city = SeasonalCitySerializer()
     views = serializers.SerializerMethodField('get_views_count')
     favorites = serializers.SerializerMethodField('get_favorites_count')
     comments_count = serializers.SerializerMethodField('get_comments_count')
@@ -178,7 +185,7 @@ class SeasonalApartmentDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SeasonalApartment
-        fields = ['id', 'category', 'name', 'description', 'video_link', 'create_at',
+        fields = ['id', 'category', 'city', 'name', 'description', 'video_link', 'create_at',
                   'views', 'favorites', 'comments_count', 'is_favorite',
                   'last_comment', 'likes', 'is_liked', 'comments', 'owner', 'images']
         depth = True
@@ -211,8 +218,8 @@ class RoomSerializer(serializers.ModelSerializer):
 
 class ApartmentRequestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SeasonalApartment
-        fields = ('name', 'description', 'address', 'phone', 'video_by_user', 'category', 'cover_image',)
+        model = Request
+        fields = ('name', 'description', 'address', 'phone', 'video_by_user', 'category', 'city', 'cover_image',)
 
 
 class BookingRequestSerializer(serializers.ModelSerializer):

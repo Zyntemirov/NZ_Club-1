@@ -145,6 +145,14 @@ class TransferHistoryUserView(viewsets.generics.ListAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class TransferHistoryDetailView(viewsets.generics.RetrieveAPIView):
+    serializer_class = TransferHistorySerializer
+
+    def get_queryset(self):
+        queryset = get_object_or_404(Transfer, pk=self.kwargs['trans_id'])
+        return queryset
+
+
 class CashBoxHistoryUserView(viewsets.generics.ListAPIView):
     serializer_class = CashBoxHistorySerializer
 

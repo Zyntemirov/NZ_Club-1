@@ -8,6 +8,7 @@ urlpatterns = [
     path('transfer/receive', ReceiveTransferView.as_view()),
     path('transfer/history/<int:user_id>/<str:from_date>/<str:before_date>',
          TransferHistoryUserView.as_view()),
+    path('transfer/history/detail/<int:trans_id>', TransferHistoryDetailView.as_view()),
     path('cash_box/history/<int:user_id>/<str:from_date>/<str:before_date>',
          CashBoxHistoryUserView.as_view()),
     path('transfer/notification/<int:user_id>',

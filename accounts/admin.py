@@ -17,7 +17,7 @@ class UserProfileInline(admin.StackedInline):
 
 
 class UserAdmin(BaseUserAdmin):
-    list_display = ['phone', 'username', 'is_active']
+    list_display = ['phone', 'username', 'id', 'is_active']
     inlines = (UserProfileInline,)
     fieldsets = (
         (None, {'fields': ('phone', 'username', 'password')}),

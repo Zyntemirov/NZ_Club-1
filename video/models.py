@@ -11,6 +11,7 @@ import PIL
 from PIL import Image
 
 from fcm_django.models import FCMDevice
+from rest_framework import status
 
 
 class Category(models.Model):
@@ -74,11 +75,11 @@ class Video(models.Model):
                                  related_name='videos',
                                  verbose_name="Категория")
     type = models.CharField(verbose_name="Тип", choices=TYPE, max_length=20)
-    status = models.CharField("Статус", max_length=20, choices=STATUS,
+    status = models.CharField("Статус", max_length=20, choices=STATUS, default='3',
                               null=True, blank=True)
     create_at = models.DateTimeField(default=datetime.now,
                                      verbose_name="Дата создания")
-    is_active = models.BooleanField(default=True, verbose_name="Активный")
+    is_active = models.BooleanField(default=False, verbose_name="Активный")
     is_top = models.BooleanField(default=True, verbose_name="Топ")
     image = models.ImageField(upload_to='videos/', verbose_name="Обложка")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -195,6 +196,37 @@ class Request(models.Model):
         verbose_name_plural = _("Заявки")
 
 
+class Request2(models.Model):
+    STATUS = (
+    ('1', 'Отклонено'),
+    ('2', 'Активно'),
+    ('3', 'В ожидании')
+    )
+
+    title = models.CharField(max_length=100, verbose_name="Название")
+    text = models.TextField(verbose_name="Описание")
+    phone = models.CharField(max_length=16, null=True, blank=True,
+                               verbose_name="Телефон номер 1")
+    video = models.CharField(max_length=255, null=True,
+                             verbose_name="Ютуб ссылка",
+                             help_text="Просмотр видео")
+    is_top = models.BooleanField(default=False, verbose_name="Топ")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,
+                                 related_name='categories2',
+                                 verbose_name="Категория")
+    image = models.ImageField(upload_to='videos/', verbose_name="Обложка")
+    status = models.CharField('Статус', choices=STATUS, default='3', max_length=20)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL,
+                              on_delete=models.CASCADE, related_name='users2',
+                              verbose_name="Владелец")
+    create_at = models.DateTimeField(auto_now_add=True,
+                                     verbose_name="Дата создания")
+
+    class Meta:
+            verbose_name = _("Заявка")
+            verbose_name_plural = _("Заявки")
+
+
 class Banner(models.Model):
     video = models.CharField(max_length=255, null=True,
                              verbose_name="Ютуб ссылка")
@@ -202,7 +234,6 @@ class Banner(models.Model):
     image = models.ImageField(upload_to='banners/', verbose_name="Обложка")
     views = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                    related_name='views')
-    block = models.PositiveIntegerField()
     order = models.PositiveIntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
 

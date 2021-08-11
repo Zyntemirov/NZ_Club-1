@@ -6,7 +6,7 @@ urlpatterns = [
     path('banners', BannerView.as_view()),
     path('banner/update/user_watched', UserWatchedBannerView.as_view()),
     path('banners/detail/<int:banner_id>', BannerDetailView.as_view()),
-    path('banners/block/<int:number>', BannerByBlockNumberView.as_view()),
+    # path('banners/block/<int:number>', BannerByBlockNumberView.as_view()),
     path('banners/like/', CreateLikeBannerView.as_view()),
     path('banners/like/delete/<int:id>/', DeleteLikeBannerView.as_view()),
     path('banners/complaint/', CreateComplaintView.as_view()),
@@ -28,6 +28,6 @@ urlpatterns = [
     path('video/update/user_not_completely_watched', UserNotFullyWatchedView.as_view()),
     path('video/update/put_first', UpVideoInSevenDayView.as_view()),
     path('create/comment', CreateCommentView.as_view()),
-    path('create/request', CreateRequestView.as_view()),
+    path('create/request', CreateRequest2View.as_view()),
     path('filter/', VideoFilterView.as_view())
 ]

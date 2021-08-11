@@ -32,6 +32,26 @@ class Category(models.Model):
         return self.title
 
 
+class City(models.Model):
+    title = models.CharField(max_length=50, verbose_name="Название города")
+    image = ResizedImageField(upload_to='seasonal/city/', verbose_name='Фотография',
+                              size=[100, 100])
+    order = models.PositiveIntegerField(default=0, blank=True, null=False)
+
+    class Meta:
+        verbose_name = _("Город")
+        verbose_name_plural = _("Города")
+        ordering = ('order',)
+
+    def image_tag(self):
+        return mark_safe('<img src={} width="200" />'.format(self.image.url))
+
+    image_tag.short_description = 'Фотография'
+
+    def __str__(self):
+        return self.title
+
+
 class Room(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('Название'))
     description = models.TextField(verbose_name=_('Описание'))
@@ -59,10 +79,12 @@ class BookingRequest(models.Model):
     adult_count = models.IntegerField(verbose_name=_('Количество взрослых'))
     kids_count = models.IntegerField(verbose_name=_('Количество детей'))
     room_count = models.IntegerField(verbose_name=_('Количество номеров'))
-    total_price = models.IntegerField(verbose_name=_('Сумма брони'))
+    total_price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=_('Сумма брони'))
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE, related_name='booking_user',
                              verbose_name="Пользователь")
+    accept = models.BooleanField(default=False)
+    payment_id = models.CharField(max_length=200, blank=True)
 
     class Meta:
         verbose_name = _('Заявка на заселение')
@@ -102,6 +124,8 @@ class SeasonalApartment(models.Model):
                                   help_text="Ссылка на видео для публикации")
     category = models.ForeignKey(Category, on_delete=models.CASCADE,
                                  verbose_name="Категория")
+    city = models.ForeignKey(City, on_delete=models.CASCADE,
+                                 verbose_name="Город")
     cover_image = ResizedImageField(size=[500, 300], upload_to='seasonal/apartment/',
                                     verbose_name=_('Обложка'), blank=True, null=True)
 
@@ -129,6 +153,44 @@ class SeasonalApartment(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Request(models.Model):
+    STATUS = (
+        ('1', 'Отклонено'),
+        ('2', 'Активно'),
+        ('3', 'В ожидании')
+    )
+
+    name = models.CharField(max_length=100, verbose_name="Название")
+    description = models.TextField(verbose_name="Описание")
+    address = models.CharField(max_length=200, verbose_name="Адрес")
+    phone = models.CharField(max_length=15, verbose_name="Телефон номер")
+    video_by_user = models.FileField(upload_to='videos_uploaded', blank=True, null=True,
+                                     validators=[FileExtensionValidator(
+                                         allowed_extensions=['MOV', 'avi', 'mp4', 'webm', 'mkv'])])
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,
+                                 verbose_name="Категория")
+    city = models.ForeignKey(City, on_delete=models.CASCADE,
+                                 verbose_name="Город")
+    cover_image = ResizedImageField(size=[500, 300], upload_to='seasonal/apartment/',
+                                    verbose_name=_('Обложка'), blank=True, null=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL,
+                              on_delete=models.CASCADE, related_name='RequestOwner',
+                              verbose_name="Владелец")
+    status = models.CharField('Статус', choices=STATUS, max_length=20, default='3')
+    create_at = models.DateTimeField(auto_now_add=True,
+                                     verbose_name="Дата создания")
+    
+    class Meta:
+        verbose_name = 'Заявка'
+        verbose_name_plural = 'Заявки'
+
+
+class ApartmentRequestImage(models.Model):
+    image = models.ImageField(verbose_name=_('Изображение'), upload_to='seasonal/image/')
+    apartment = models.ForeignKey('Request', verbose_name=_('Пансинат'),
+                                  related_name='RequestImages', on_delete=models.CASCADE)
 
 
 class SeasonalComment(models.Model):

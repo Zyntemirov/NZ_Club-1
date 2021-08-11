@@ -7,7 +7,7 @@ from accounts.models import User, userProfile
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        user = User.objects.get_or_create(email='admin@admin.com', phone="996558779117")[0]
+        user = User.objects.get_or_create(email='admin@admin.com', phone="996700000001")[0]
         user.set_password('1')
         user.is_superuser = True
         user.is_active = True

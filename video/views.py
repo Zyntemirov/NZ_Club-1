@@ -13,10 +13,6 @@ from rest_framework.generics import *
 from django.db.models import Q
 
 
-class MyPagination(pagination.PageNumberPagination):
-    page_size = 3
-
-
 # list get API
 class CategoriesView(viewsets.generics.ListAPIView):
     serializer_class = CategorySerializer
@@ -37,7 +33,7 @@ class VideosView(viewsets.generics.ListAPIView):
         user = self.request.user
         if user:
             queryset = Video.objects.filter(
-                Q(is_top=False) | Q(views__in=[user])).distinct()[::-1]
+                Q(is_top=False) | Q(views__in=[user])).distinct().reverse()
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -180,6 +176,7 @@ class UserWatchedBannerView(viewsets.generics.UpdateAPIView):
 class BannerView(viewsets.generics.ListAPIView):
     serializer_class = BannerSerializer
     queryset = Banner.objects.all()
+    pagination_class = pagination.LimitOffsetPagination
 
 
 class BannerDetailView(viewsets.generics.ListAPIView):
@@ -190,12 +187,12 @@ class BannerDetailView(viewsets.generics.ListAPIView):
         return queryset
 
 
-class BannerByBlockNumberView(viewsets.generics.ListAPIView):
-    serializer_class = BannerSerializer
+# class BannerByBlockNumberView(viewsets.generics.ListAPIView):
+#     serializer_class = BannerSerializer
 
-    def get_queryset(self):
-        queryset = Banner.objects.filter(block=self.kwargs['number'])
-        return queryset
+#     def get_queryset(self):
+#         queryset = Banner.objects.filter(block=self.kwargs['number'])
+#         return queryset
 
 
 # update put, patch API
@@ -210,7 +207,7 @@ class UserFullyWatchedView(viewsets.generics.UpdateAPIView):
             if request.data['view']:
                 bonus = 0
                 for item in video.tariffs.all():
-                    if item.views > len(video.views.all()):
+                    if item.views > video.views.count():
                         bonus = item.price
                         break
 
@@ -286,6 +283,18 @@ class CreateCommentView(viewsets.generics.CreateAPIView):
 class CreateRequestView(viewsets.generics.CreateAPIView):
     serializer_class = CreateRequestSerializer
     permission_classes = [IsAuthenticated]
+
+
+class CreateRequest2View(CreateAPIView):
+    serializer_class = CreateRequest2Serializer
+    queryset = Request2.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=self.request.user)
+
+        return Response(serializer.data, status.HTTP_201_CREATED)
 
 
 class CreateLikeBannerView(viewsets.generics.CreateAPIView):

@@ -2,11 +2,17 @@ from rest_framework import status
 from rest_framework.generics import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from seasonal.serializers import *
 from django.db.models import Q
+from django.conf import settings
 from datetime import timedelta
+from accounts.models import userProfile
+from django.core.management.utils import get_random_secret_key
+from django.template.loader import render_to_string
+
+import hashlib
 
 
 class StoriesView(ListAPIView):
@@ -66,6 +72,11 @@ class CreateStoriesComplaintView(CreateAPIView):
 class CategoryListView(ListAPIView):
     serializer_class = SeasonalCategorySerializer
     queryset = Category.objects.all()
+
+
+class CityListView(ListAPIView):
+    serializers = SeasonalCitySerializer
+    queryset = City.objects.all()
 
 
 class ApartmentDetailView(RetrieveAPIView):
@@ -137,7 +148,7 @@ class ApartmentView(ListAPIView):
         user = self.request.user
         if user:
             queryset = SeasonalApartment.objects.filter(
-                Q(is_checked=True) | Q(views__in=[user])).distinct()[::-1]
+                Q(is_checked=True) | Q(views__in=[user])).distinct().reverse()
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -154,18 +165,21 @@ class ApartmentFilterOrListView(ListAPIView):
     def get_queryset(self):
         category_id = self.request.query_params.get('category_id', '')
         region = self.request.query_params.get('region')
+        city_id = self.request.query_params.get('city_id')
         queryset = SeasonalApartment.objects.filter(is_checked=True)
 
         if category_id:
             queryset = queryset.filter(category_id=category_id)
         if region:
             queryset = queryset.filter(owner__profile__region=region)
+        if city_id:
+            queryset = queryset.filter(city_id=city_id)
         return queryset
 
 
 class ApartmentRequestView(CreateAPIView):
     serializer_class = ApartmentRequestSerializer
-    queryset = SeasonalApartment.objects.all()
+    queryset = Request.objects.all()
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -174,7 +188,7 @@ class ApartmentRequestView(CreateAPIView):
 
         if request.FILES.getlist('images'):
             for image in request.FILES.getlist('images'):
-                ad_image = ApartmentImage(apartment=apartment, image=image)
+                ad_image = ApartmentRequestImage(apartment=apartment, image=image)
                 ad_image.save()
         else:
             return Response({'image': 'This field is required!'}, status.HTTP_403_FORBIDDEN)
@@ -201,16 +215,68 @@ class ApartmentRoomListView(ListAPIView):
         return Room.objects.filter(apartment_id=self.kwargs['apartment_id'])
 
 
-class BookingRequestView(CreateAPIView):
+class BookingRequestView(GenericAPIView):
     serializer_class = BookingRequestSerializer
     queryset = BookingRequest.objects.all()
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+    def post(self, request):
+        serializer = self.get_serializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=self.request.user)
-
+        data = request.data
+        if 'card' in self.request.query_params:
+            booking = BookingRequest.objects.get(id=serializer.data['id'])
+            payment_id = get_random_secret_key()
+            g = render_to_string('yoomoney.html', {
+                'recipient': settings.PAYMENT_RECIPIENT,
+                'payment_id': payment_id,
+                'comment': data['comment'],
+                'count': data['total_price']
+                })
+            booking.payment_id = payment_id
+            booking.save()
+            return Response({
+                'Booking request': serializer.data,
+                'Payment': g
+            })
+        elif 'point' in self.request.query_params:
+            user = get_user_model().objects.get(id=request.user.id)
+            user_prof = userProfile.objects.get(user=user)
+            total_price = data['total_price']
+            if total_price < user_prof.balance:
+                return Response({'enough points': "you don't have enough points"})
+            user_prof.balance -= total_price
+            user_prof.withdrawn_balance += total_price
+            user_prof.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
+
+
+class BookingNotification(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        list_ob = [
+            str(data['notification_type']),
+            str(data['operation_id']),
+            str(data['amount']),
+            str(data['currency']),
+            str(data['datetime']),
+            str(data['sender']),
+            str(data['codepro']),
+            settings.NOTIFICATION_SECRET,
+            str(data['label'])
+        ]
+        hash1 = hashlib.sha1(bytes("&".join(list_ob), 'utf-8'))
+        pbhash = hash1.hexdigest()
+        if data['sha1_hash'] != pbhash:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        query = BookingRequest.objects.filter(accept=False)
+        query = get_object_or_404(query, payment_id=data['label'])
+        query.accept = True
+        query.total_price = data['amount']
+        query.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 class BookingHistory(ListAPIView):
