@@ -75,16 +75,20 @@ class CreateTransferView(viewsets.generics.UpdateAPIView):
                 device_sender = FCMDevice.objects.get(user=user)
                 device.send_message(title="Перевод💰",
                                     body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']} баллов. Введите код чтобы получить перевод.",
-                                    icon=settings.GLOBAL_HOST + profile.image.url)
+                                    icon=settings.GLOBAL_HOST + profile.image.url,
+                                    type='4')
                 Notification.objects.create(user=receiver, title="Перевод💰",
                                             body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']} баллов. Введите код чтобы получить перевод.",
-                                            image=settings.GLOBAL_HOST + profile.image.url)
+                                            image=settings.GLOBAL_HOST + profile.image.url,
+                                            type='4')
                 device_sender.send_message(title="Перевод💰",
                                            body=f"Вы перевели пользователю {receiver.username} {request.data['amount']}",
-                                           icon=settings.GLOBAL_HOST + profile.image.url)
+                                           icon=settings.GLOBAL_HOST + profile.image.url,
+                                           type='3')
                 Notification.objects.create(user=user, title="Перевод💰",
                                             body=f"Вы перевели пользователю {receiver.username} {request.data['amount']}",
-                                            image=settings.GLOBAL_HOST + profile.image.url)
+                                            image=settings.GLOBAL_HOST + profile.image.url,
+                                            type='3')
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -236,16 +240,20 @@ class CreateDonateTransferView(APIView):
             device_sender = FCMDevice.objects.filter(user=user)
             device.send_message(title="Перевод💰",
                                 body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
-                                icon=settings.GLOBAL_HOST + user.profile.image.url)
+                                icon=settings.GLOBAL_HOST + user.profile.image.url,
+                                type='4')
             Notification.objects.create(user=video.owner, title="Перевод💰",
                                         body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
-                                        image=settings.GLOBAL_HOST + video.owner.profile.image.url)
+                                        image=settings.GLOBAL_HOST + video.owner.profile.image.url,
+                                        type='4')
             device_sender.send_message(title="Перевод💰",
                                        body=f"Вы перевели пользователю {video.owner.username} {request.data['amount']}",
-                                       icon=settings.GLOBAL_HOST + user.profile.image.url)
+                                       icon=settings.GLOBAL_HOST + user.profile.image.url,
+                                       type='3')
             Notification.objects.create(user=user, title="Перевод💰",
                                         body=f"Вы перевели пользователю {video.owner.username} {request.data['amount']}",
-                                        image=settings.GLOBAL_HOST + user.profile.image.url)
+                                        image=settings.GLOBAL_HOST + user.profile.image.url,
+                                        type='3')
             return Response(status.HTTP_200_OK)
         return Response({'message': 'Вы не можете пожертвовать себе'},
                         status.HTTP_400_BAD_REQUEST)

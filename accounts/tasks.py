@@ -36,9 +36,11 @@ def process_withdrawal(withdrawal_ids: list, status: str):
             for withdrawal in withdrawals:
                 device = FCMDevice.objects.filter(user=withdrawal.user)
                 device.send_message(title="При выводе средств",
-                                    body=f"Успешно выведено баллов на сумму “{withdrawal.amount}” через “{withdrawal.get_method_display()}”")
+                                    body=f"Успешно выведено баллов на сумму “{withdrawal.amount}” через “{withdrawal.get_method_display()}”",
+                                    type='1')
                 Notification.objects.create(user=withdrawal.user,
                                             title="При выводе средств",
-                                            body=f"Успешно выведено баллов на сумму “{withdrawal.amount}” через “{withdrawal.get_method_display()}”")
+                                            body=f"Успешно выведено баллов на сумму “{withdrawal.amount}” через “{withdrawal.get_method_display()}”",
+                                            type='1')
             return f'{len(withdrawal_ids)} withdrawals processed successfully'
         return f'There is no withdrawals to be processed in this request'

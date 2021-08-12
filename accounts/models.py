@@ -123,6 +123,16 @@ class Withdrawal(models.Model):
 
 
 class Notification(models.Model):
+    TYPIES = (
+        ('1', _('withdrawal of funds')),
+        ('2', _('refill')),
+        ('3', _('sending points')),
+        ('4', _('getting points')),
+        ('5', _('new video')),
+        ('6', _('reply to comment')),
+        ('7', _('new comment'))
+    )
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              verbose_name="Пользователь",
                              related_name="notifications",
@@ -136,6 +146,7 @@ class Notification(models.Model):
     image = ResizedImageField("Изображение", size=[150, 150], quality=100,
                               upload_to='notifications/', blank=True,
                               null=True)
+    type = models.CharField("Тип", max_length=150, choices=TYPIES)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

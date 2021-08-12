@@ -21,9 +21,11 @@ def video_pre_save_receiver(sender, instance, *args, **kwargs):
                                                 title="Новое видео🔥",
                                                 video=old_instance,
                                                 body="Кликните сюда чтобы посмотреть видео " + instance.title,
-                                                image=old_instance.image)
+                                                image=old_instance.image,
+                                                type='5')
                 devices.send_message(title="Новое видео🔥",
-                                     body="Кликните сюда чтобы посмотреть видео " + instance.title)
+                                     body="Кликните сюда чтобы посмотреть видео " + instance.title,
+                                     type='5')
             except FCMDevice.DoesNotExist:
                 pass
 
@@ -41,9 +43,11 @@ def video_post_save_receiver(sender, instance, created, *args, **kwargs):
                                                 title="Новое видео🔥",
                                                 video=instance,
                                                 body="Кликните сюда чтобы посмотреть видео " + instance.title,
-                                                image=instance.image)
+                                                image=instance.image,
+                                                type='5')
                 devices.send_message(title="Новое видео🔥",
-                                     body="Кликните сюда чтобы посмотреть видео " + instance.title)
+                                     body="Кликните сюда чтобы посмотреть видео " + instance.title,
+                                     type='5')
             except:
                 pass
     else:
@@ -81,13 +85,15 @@ def comment_post_save_receiver(sender, instance, created, *args, **kwargs):
             devices = FCMDevice.objects.filter(user=comment_parent.user)
             devices.send_message(title="Ответ на комментарий",
                                  body="Вам ответили на комментарий " +
-                                      comment.text[:10] + "...")
+                                      comment.text[:10] + "...",
+                                 type='6')
             Notification.objects.create(user=comment_parent.user,
                                         video=comment.video,
                                         title="Ответ на комментарий",
                                         body="Вам ответили на комментарий " +
                                              comment.text[:10] + "...",
-                                        image=instance.user.profile.image)
+                                        image=instance.user.profile.image,
+                                        type='6')
 
 
 @receiver(post_save, sender=Comment)
@@ -98,10 +104,12 @@ def video_comment_post_save_receiver(sender, instance, created, *args,
         devices = FCMDevice.objects.filter(comment.video.owner)
         devices.send_message(itle="Новый коментарий",
                              body=f"{comment.user.username}" +
-                                  comment.text[:10] + "...", )
+                                  comment.text[:10] + "...", 
+                             type='7')
         Notification.objects.create(user=comment.video.owner,
                                     video=comment.video,
                                     title="Новый коментарий",
                                     body=f"{comment.user.username}" +
                                          comment.text[:10] + "...",
-                                    image=comment.video.image)
+                                    image=comment.video.image,
+                                    type='7')

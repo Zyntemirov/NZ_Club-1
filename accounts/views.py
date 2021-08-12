@@ -257,11 +257,13 @@ class PayPaymentView(GenericAPIView):
                 user_profile.balance = F('balance') + (sum)
                 devices = FCMDevice.objects.filter(user=user)
                 devices.send_message(title="При пополнении счета",
-                                     body=f"Успешно пополено на сумму “{sum}” через Pay24.")
+                                     body=f"Успешно пополено на сумму “{sum}” через Pay24.",
+                                     type='2')
                 Notification.objects.create(user=user,
                                             title="При пополнении счета",
                                             body=f"Успешно пополено на сумму “{sum}” через Pay24.",
-                                            image=user_profile.image)
+                                            image=user_profile.image,
+                                            type='2')
                 user_profile.save()
                 return Response({'result': 0})
             except User.DoesNotExist:
