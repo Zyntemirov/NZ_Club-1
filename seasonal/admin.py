@@ -79,11 +79,11 @@ class ApartmentAdmin(admin.ModelAdmin):
     def response_change(self, request, obj):
         if request.user.is_superuser:
             if 'approve' in request.POST:
-                SeasonalApartment.objects.get(id=obj.id).update(is_checked=True)
+                SeasonalApartment.objects.get(id=obj.id).save(is_checked=True)
                 self.message_user(request, 'Видео активна')
                 return HttpResponseRedirect('.')
             elif 'disapprove' in request.POST:
-                SeasonalApartment.objects.get(id=obj.id).update(is_checked=False)
+                SeasonalApartment.objects.get(id=obj.id).save(is_checked=False)
                 self.message_user(request, 'Видео отключен')
                 return HttpResponseRedirect('.')
         return super().response_change(request, obj)
@@ -133,7 +133,7 @@ class RequestAdmin(admin.ModelAdmin):
     def response_change(self, request, obj):
         if request.user.is_superuser:
             if 'approve' in request.POST:
-                Request.objects.get(id=obj.id).update(status='2')
+                Request.objects.get(id=obj.id).save(status='2')
                 apartment = SeasonalApartment.objects.create(name=obj.name,
                                         description=obj.description,
                                         address=obj.address,
@@ -153,7 +153,7 @@ class RequestAdmin(admin.ModelAdmin):
                 self.message_user(request, 'Видео создан')
                 return HttpResponseRedirect('.')
             elif 'disapprove' in request.POST:
-                Request.objects.get(id=obj.id).update(status='1')
+                Request.objects.get(id=obj.id).save(status='1')
                 self.message_user(request, 'Запрос откланен')
                 return HttpResponseRedirect('.')
         return super().response_change(request, obj)
