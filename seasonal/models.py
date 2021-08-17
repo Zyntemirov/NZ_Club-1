@@ -69,7 +69,7 @@ class Room(models.Model):
         return self.name
 
 
-class BookingRequest(models.Model):
+class  BookingRequest(models.Model):
     entry_date = models.DateTimeField(default=datetime.now, verbose_name=_('Дата въезда'))
     exit_date = models.DateTimeField(default=datetime.now, verbose_name=_('Дата выезда'))
     room = models.ForeignKey('Room', related_name='room', verbose_name=_('Номер'),
