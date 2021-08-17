@@ -74,15 +74,16 @@ class ApartmentAdmin(admin.ModelAdmin):
     fields = ('name', 'description', 'address', 'phone', ('video_by_user', 'download_video'),
             'video_link', 'category', 'city', ('cover_image', 'download_img'), 'is_checked', 'type', 'owner')
     change_form_template = 'admin/changeform.html'
+    save_on_top = True
 
     def response_change(self, request, obj):
         if request.user.is_superuser:
             if 'approve' in request.POST:
-                obj.update(is_checked=True)
+                SeasonalApartment.objects.get(id=obj.id).update(is_checked=True)
                 self.message_user(request, 'Видео активна')
                 return HttpResponseRedirect('.')
             elif 'disapprove' in request.POST:
-                obj.update(is_checked=False)
+                SeasonalApartment.objects.get(id=obj.id).update(is_checked=False)
                 self.message_user(request, 'Видео отключен')
                 return HttpResponseRedirect('.')
         return super().response_change(request, obj)
@@ -132,7 +133,7 @@ class RequestAdmin(admin.ModelAdmin):
     def response_change(self, request, obj):
         if request.user.is_superuser:
             if 'approve' in request.POST:
-                obj.update(status='2')
+                Request.objects.get(id=obj.id).update(status='2')
                 apartment = SeasonalApartment.objects.create(name=obj.name,
                                         description=obj.description,
                                         address=obj.address,
@@ -143,7 +144,7 @@ class RequestAdmin(admin.ModelAdmin):
                                         cover_image=obj.cover_image,
                                         owner=obj.owner
                                         )
-                images = ApartmentRequestImage.objects.filter(apartment=obj)
+                images = ApartmentRequestImage.objects.filter(apartment__id=obj.id)
                 if images:
                     for image in images:
                         ad_image = ApartmentImage(apartment=apartment, image=image)
@@ -152,7 +153,7 @@ class RequestAdmin(admin.ModelAdmin):
                 self.message_user(request, 'Видео создан')
                 return HttpResponseRedirect('.')
             elif 'disapprove' in request.POST:
-                obj.update(status='1')
+                Request.objects.get(id=obj.id).update(status='1')
                 self.message_user(request, 'Запрос откланен')
                 return HttpResponseRedirect('.')
         return super().response_change(request, obj)
