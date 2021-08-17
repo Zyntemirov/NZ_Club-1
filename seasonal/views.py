@@ -242,7 +242,7 @@ class BookingRequestView(GenericAPIView):
         elif 'point' in data:
             user = get_user_model().objects.get(id=request.user.id)
             user_prof = userProfile.objects.get(user=user)
-            total_price = data['total_price']
+            total_price = float(data['total_price'])
             if total_price < user_prof.balance:
                 return Response({'enough points': "you don't have enough points"})
             user_prof.balance -= total_price
