@@ -224,7 +224,7 @@ class BookingRequestView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save(user=self.request.user)
         data = request.data
-        if 'card' in data:
+        if 'card' == data[type]:
             booking = BookingRequest.objects.get(id=serializer.data['id'])
             payment_id = get_random_secret_key()
             g = render_to_string('yoomoney.html', {
@@ -239,7 +239,7 @@ class BookingRequestView(GenericAPIView):
                 'Booking request': serializer.data,
                 'Payment': g
             })
-        elif 'point' in data:
+        elif 'point' == data[type]:
             user = get_user_model().objects.get(id=request.user.id)
             user_prof = userProfile.objects.get(user=user)
             total_price = float(data['total_price'])
