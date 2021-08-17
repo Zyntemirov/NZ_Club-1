@@ -49,12 +49,15 @@ class VideoAdmin(admin.ModelAdmin):
     
     def response_change(self, request, obj):
         if request.user.is_superuser:
+            video = Video.objects.get(id=obj.id)
             if 'approve' in request.POST:
-                Video.objects.get(id=obj.id).save(status='2', is_active=True)
+                video.status, video.is_active = '2', True
+                video.save()
                 self.message_user(request, 'Видео активна')
                 return HttpResponseRedirect('.')
             elif 'disapprove' in request.POST:
-                Video.objects.get(id=obj.id).save(status='1', is_active=False)
+                video.status, video.is_active = '1', False
+                video.save()
                 self.message_user(request, 'Видео отключен')
                 return HttpResponseRedirect('.')
         return super().response_change(request, obj)
@@ -172,8 +175,10 @@ class Request2Admin(admin.ModelAdmin):
 
     def response_change(self, request, obj):
         if request.user.is_superuser:
+            req = Request2.objects.get(id=obj.id)
             if 'approve' in request.POST:
-                Request2.objects.get(id=obj.id).save(status='2')
+                req.status = '2'
+                req.save()
                 Video.objects.create(title=obj.title,
                                     text=obj.text,
                                     phone_1=obj.phone,
@@ -186,7 +191,8 @@ class Request2Admin(admin.ModelAdmin):
                 self.message_user(request, 'Видео создан')
                 return HttpResponseRedirect('.')
             elif 'disapprove' in request.POST:
-                Request2.objects.get(id=obj.id).save(status='1')
+                req.status = '1'
+                req.save()
                 self.message_user(request, 'Запрос откланен')
                 return HttpResponseRedirect('.')
         return super().response_change(request, obj)
