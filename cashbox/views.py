@@ -76,7 +76,7 @@ class CreateTransferView(viewsets.generics.UpdateAPIView):
                 device.send_message(title="Перевод💰",
                                     body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']} баллов. Введите код чтобы получить перевод.",
                                     icon=settings.GLOBAL_HOST + profile.image.url,
-                                    type='4')
+                                    data={'type': '4'})
                 Notification.objects.create(user=receiver, title="Перевод💰",
                                             body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']} баллов. Введите код чтобы получить перевод.",
                                             image=settings.GLOBAL_HOST + profile.image.url,
@@ -84,7 +84,7 @@ class CreateTransferView(viewsets.generics.UpdateAPIView):
                 device_sender.send_message(title="Перевод💰",
                                            body=f"Вы перевели пользователю {receiver.username} {request.data['amount']}",
                                            icon=settings.GLOBAL_HOST + profile.image.url,
-                                           type='3')
+                                           data={'type': '3'})
                 Notification.objects.create(user=user, title="Перевод💰",
                                             body=f"Вы перевели пользователю {receiver.username} {request.data['amount']}",
                                             image=settings.GLOBAL_HOST + profile.image.url,
@@ -241,7 +241,7 @@ class CreateDonateTransferView(APIView):
             device.send_message(title="Перевод💰",
                                 body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
                                 icon=settings.GLOBAL_HOST + user.profile.image.url,
-                                type='4')
+                                data={'type': '4'})
             Notification.objects.create(user=video.owner, title="Перевод💰",
                                         body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
                                         image=settings.GLOBAL_HOST + video.owner.profile.image.url,
@@ -249,7 +249,7 @@ class CreateDonateTransferView(APIView):
             device_sender.send_message(title="Перевод💰",
                                        body=f"Вы перевели пользователю {video.owner.username} {request.data['amount']}",
                                        icon=settings.GLOBAL_HOST + user.profile.image.url,
-                                       type='3')
+                                       data={'type': '3'})
             Notification.objects.create(user=user, title="Перевод💰",
                                         body=f"Вы перевели пользователю {video.owner.username} {request.data['amount']}",
                                         image=settings.GLOBAL_HOST + user.profile.image.url,

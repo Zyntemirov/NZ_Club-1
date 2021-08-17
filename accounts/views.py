@@ -258,7 +258,7 @@ class PayPaymentView(GenericAPIView):
                 devices = FCMDevice.objects.filter(user=user)
                 devices.send_message(title="При пополнении счета",
                                      body=f"Успешно пополено на сумму “{sum}” через Pay24.",
-                                     type='2')
+                                     data={'type': '2'})
                 Notification.objects.create(user=user,
                                             title="При пополнении счета",
                                             body=f"Успешно пополено на сумму “{sum}” через Pay24.",

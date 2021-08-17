@@ -128,7 +128,7 @@ class CreateDonateForCompanySerializer(serializers.ModelSerializer):
         device.send_message(title="Перевод💰",
                             body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
                             icon=settings.GLOBAL_HOST + nz_club.profile.image.url,
-                            type='4')
+                            data={'type': '4'})
         Notification.objects.create(user=nz_club, title="Перевод💰",
                                     body=f"Пользователь {user.username} отправил(а) вам {request.data['amount']}",
                                     image=settings.GLOBAL_HOST + nz_club.profile.image.url,
@@ -136,7 +136,7 @@ class CreateDonateForCompanySerializer(serializers.ModelSerializer):
         device_sender.send_message(title="Перевод💰",
                                    body=f"Вы перевели пользователю {nz_club.username} {request.data['amount']}",
                                    icon=settings.GLOBAL_HOST + nz_club.profile.image.url,
-                                   type='3')
+                                   data={'type': '3'})
         Notification.objects.create(user=user, title="Перевод💰",
                                     body=f"Вы перевели пользователю {nz_club.username} {request.data['amount']}",
                                     image=settings.GLOBAL_HOST + nz_club.profile.image.url,
