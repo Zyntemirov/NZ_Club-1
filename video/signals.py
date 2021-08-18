@@ -25,7 +25,7 @@ def video_pre_save_receiver(sender, instance, *args, **kwargs):
                                                 type='5')
                 devices.send_message(title="Новое видео🔥",
                                      body="Кликните сюда чтобы посмотреть видео " + instance.title,
-                                     data={'type': '5'})
+                                     data={'type': '5', 'id': instance.id})
             except FCMDevice.DoesNotExist:
                 pass
 
@@ -47,7 +47,7 @@ def video_post_save_receiver(sender, instance, created, *args, **kwargs):
                                                 type='5')
                 devices.send_message(title="Новое видео🔥",
                                      body="Кликните сюда чтобы посмотреть видео " + instance.title,
-                                     data={'type': '5'})
+                                     data={'type': '5', 'id': instance.id})
             except:
                 pass
     else:
@@ -86,7 +86,7 @@ def comment_post_save_receiver(sender, instance, created, *args, **kwargs):
             devices.send_message(title="Ответ на комментарий",
                                  body="Вам ответили на комментарий " +
                                       comment.text[:10] + "...",
-                                 data={'type': '6'})
+                                 data={'type': '6', 'id': comment.video.id})
             Notification.objects.create(user=comment_parent.user,
                                         video=comment.video,
                                         title="Ответ на комментарий",
@@ -105,7 +105,7 @@ def video_comment_post_save_receiver(sender, instance, created, *args,
         devices.send_message(itle="Новый коментарий",
                              body=f"{comment.user.username}" +
                                   comment.text[:10] + "...", 
-                             data={'type': '7'})
+                             data={'type': '7', 'id': comment.video.id})
         Notification.objects.create(user=comment.video.owner,
                                     video=comment.video,
                                     title="Новый коментарий",
