@@ -294,6 +294,15 @@ class ComplaintStories(models.Model):
     TYPE_COMPLAINT = (
         ('1', '1'),
         ('2', '2'),
+        ('3', '3'),
+        ('4', '4'),
+        ('5', '5'),
+        ('6', '6'),
+        ('7', '7'),
+        ('8', '8'),
+        ('9', '9'),
+        ('10', '10'),
+        ('11', '11')
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name='complaint_stories',
