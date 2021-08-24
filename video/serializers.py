@@ -282,7 +282,7 @@ class CreateRequestSerializer(serializers.ModelSerializer):
 
 class CreateRequest2Serializer(serializers.ModelSerializer):
     class Meta:
-        model = Request
+        model = Request2
         fields = ['title', 'text', 'phone', 'video', 'is_top', 'category', 'image',]
 
 

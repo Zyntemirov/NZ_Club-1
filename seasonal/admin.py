@@ -60,7 +60,7 @@ class StoriesAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 @admin.register(BookingRequest)
 class BookingRequestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'entry_date', 'exit_date', 'room', 'phone', 'accept']
+    list_display = ['id', 'user', 'entry_date', 'exit_date','room__name' 'room', 'phone', 'accept']
     list_display_links = list_display
 
 
@@ -137,8 +137,6 @@ class RequestAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             req = Request.objects.get(id=obj.id)
             if 'approve' in request.POST:
-                req.status = '2'
-                req.save()
                 apartment = SeasonalApartment.objects.create(name=obj.name,
                                         description=obj.description,
                                         address=obj.address,
@@ -155,13 +153,13 @@ class RequestAdmin(admin.ModelAdmin):
                         ad_image = ApartmentImage(apartment=apartment, image=image)
                         ad_image.save()
                     images.delete()
+                req.delete()
                 self.message_user(request, 'Видео создан')
-                return HttpResponseRedirect('.')
+                return HttpResponseRedirect('/admin/seasonal/request/')
             elif 'disapprove' in request.POST:
-                req.status = '1'
-                req.save()
+                req.delete()
                 self.message_user(request, 'Запрос откланен')
-                return HttpResponseRedirect('.')
+                return HttpResponseRedirect('/admin/seasonal/request/')
         return super().response_change(request, obj)
 
     def get_owner_region(self, obj):

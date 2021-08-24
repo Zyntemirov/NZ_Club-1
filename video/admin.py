@@ -177,8 +177,6 @@ class Request2Admin(admin.ModelAdmin):
         if request.user.is_superuser:
             req = Request2.objects.get(id=obj.id)
             if 'approve' in request.POST:
-                req.status = '2'
-                req.save()
                 Video.objects.create(title=obj.title,
                                     text=obj.text,
                                     phone_1=obj.phone,
@@ -188,13 +186,13 @@ class Request2Admin(admin.ModelAdmin):
                                     image=obj.image,
                                     owner=obj.owner
                                     )
+                req.delete()
                 self.message_user(request, 'Видео создан')
-                return HttpResponseRedirect('.')
+                return HttpResponseRedirect('/admin/video/request2/')
             elif 'disapprove' in request.POST:
-                req.status = '1'
-                req.save()
+                req.delete()
                 self.message_user(request, 'Запрос откланен')
-                return HttpResponseRedirect('.')
+                return HttpResponseRedirect('/admin/video/request2/')
         return super().response_change(request, obj)
 
     def get_owner_region(self, obj):

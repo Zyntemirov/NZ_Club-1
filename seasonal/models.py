@@ -185,6 +185,7 @@ class Request(models.Model):
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
+        ordering = ('-create_at')
 
 
 class ApartmentRequestImage(models.Model):

@@ -225,6 +225,7 @@ class Request2(models.Model):
     class Meta:
             verbose_name = _("Заявка")
             verbose_name_plural = _("Заявки")
+            ordering = ('-create_at')
 
 
 class Banner(models.Model):
