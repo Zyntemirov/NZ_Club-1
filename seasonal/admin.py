@@ -60,7 +60,7 @@ class StoriesAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 @admin.register(BookingRequest)
 class BookingRequestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'entry_date', 'exit_date', 'room', 'phone', 'accept']
+    list_display = ['id', 'user', 'entry_date', 'exit_date', 'get_apartment_name','room', 'phone', 'accept']
     list_display_links = list_display
 
 
