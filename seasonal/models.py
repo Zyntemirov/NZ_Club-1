@@ -96,10 +96,6 @@ class  BookingRequest(models.Model):
         verbose_name = _('Заявка на заселение')
         verbose_name_plural = _('Заявки на заселение')
 
-    
-    def get_apartment_name(self):
-        return self.room.apartment
-
 
 class ApartmentImage(models.Model):
     image = models.ImageField(verbose_name=_('Изображение'), upload_to='seasonal/image/')

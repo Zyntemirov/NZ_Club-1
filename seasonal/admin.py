@@ -63,6 +63,11 @@ class BookingRequestAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'entry_date', 'exit_date', 'get_apartment_name','room', 'phone', 'accept']
     list_display_links = list_display
 
+    def get_apartment_name(self, obj):
+        return obj.room.apartment
+
+    get_apartment_name.short_description = 'название пасионата'
+
 
 @admin.register(SeasonalApartment)
 class ApartmentAdmin(admin.ModelAdmin):
