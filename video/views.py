@@ -30,10 +30,10 @@ class VideosView(viewsets.generics.ListAPIView):
     # pagination_class = MyPagination
 
     def get_queryset(self):
-        user = self.request.user
+        user = get_user_model().objects.get(id=self.request.data['user_id'])
         if user:
             queryset = Video.objects.filter(
-                Q(is_top=False) | Q(views__in=[user])).distinct().reverse()
+                Q(is_top=False) | Q(views__in=[user])).order_by('-views__id')
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -224,6 +224,7 @@ class UserFullyWatchedView(viewsets.generics.UpdateAPIView):
 
                 if bonus == 0:
                     video.is_top = False
+                video.views.add(user)
                 video.watched_videos.add(user)
                 video.save()
 
