@@ -70,6 +70,11 @@ class Room(models.Model):
 
 
 class  BookingRequest(models.Model):
+    TYPE_CHOICES = (
+        ('card', 'card'),
+        ('point', 'point')
+    )
+
     entry_date = models.DateTimeField(default=datetime.now, verbose_name=_('Дата въезда'))
     exit_date = models.DateTimeField(default=datetime.now, verbose_name=_('Дата выезда'))
     room = models.ForeignKey('Room', related_name='room', verbose_name=_('Номер'),
@@ -84,6 +89,7 @@ class  BookingRequest(models.Model):
                              on_delete=models.CASCADE, related_name='booking_user',
                              verbose_name="Пользователь")
     accept = models.BooleanField(default=False)
+    type = models.CharField(choices=TYPE_CHOICES, max_length=100)
     payment_id = models.CharField(max_length=200, blank=True)
 
     class Meta:
