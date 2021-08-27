@@ -122,6 +122,29 @@ class ApartmentAdmin(admin.ModelAdmin):
     download_img.short_description = 'скачать изображения'
 
 
+class ImageRequestInline(admin.TabularInline):
+    model = ApartmentRequestImage
+    fields = ('image', 'apartment', 'get_img')
+    readonly_fields = ('get_img', )
+
+    def has_add_permission(self, request, obj):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_view_permission(self, request, obj=None):
+        return True
+    
+    def get_img(self, obj):
+        return mark_safe(f'<img src={obj.image.url} style="width:150px, height:150px" />')
+
+    get_img.short_description = 'изображение'
+
+
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):
     list_display = ['status', 'name', 'address', 'phone', 'category', 'city',]
@@ -129,6 +152,7 @@ class RequestAdmin(admin.ModelAdmin):
     readonly_fields = ['create_at',]
     search_fields = ['name', ]
     list_filter = ['owner__username']
+    inlines = [ImageRequestInline]
     change_form_template = 'admin/RequestChangeForm.html'
     save_on_top = True
 

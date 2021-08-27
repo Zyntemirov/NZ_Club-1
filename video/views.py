@@ -39,6 +39,7 @@ left join (
     select * from video_videoviews 
     where user_id={user.id}
     )q on vv.id=q.video_id 
+where vv.is_top=false and vv.is_active=true
 order by (
     case when q.create_at is null 
     then vv.create_at 
