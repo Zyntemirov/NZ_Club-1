@@ -30,10 +30,19 @@ class VideosView(viewsets.generics.ListAPIView):
     # pagination_class = MyPagination
 
     def get_queryset(self):
-        user = get_user_model().objects.get(id=self.request.data['user_id'])
+        print(self.request.user)
+        user = get_user_model().objects.get(id=self.request.user.id)
         if user:
-            queryset = Video.objects.filter(
-                Q(is_top=False) | Q(views__in=[user])).order_by('-views__id')
+            queryset = Video.objects.raw(f'''select *
+from video_video vv 
+left join (
+    select * from video_videoviews 
+    where user_id={user.id}
+    )q on vv.id=q.video_id 
+order by (
+    case when q.create_at is null 
+    then vv.create_at 
+    else q.create_at end) desc''')
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -60,13 +69,13 @@ class VideoDetailView(viewsets.generics.RetrieveAPIView):
 
 class ViewsDetailVideoView(viewsets.generics.ListAPIView):
     serializer_class = ViewsDetailVideoSerializer
+    queryset = Video.objects.all()
 
     def get(self, request, *args, **kwargs):
-        queryset = Video.objects.all()
-        views = get_object_or_404(queryset, id=self.kwargs['id'])
+        views = get_object_or_404(self.get_queryset(), id=self.kwargs['id'])
         serializer = ViewsDetailVideoSerializer(views,
                                                 context={'request': request})
-        return Response(serializer.data['views'])
+        return Response(serializer.data['get_views_count'])
 
 
 class CommentsDetailVideoView(viewsets.generics.ListAPIView):
@@ -87,8 +96,7 @@ class VideoTop10View(viewsets.generics.ListAPIView):
     def get_queryset(self):
         user = get_user_model().objects.get(id=self.kwargs['user_id'])
         if user:
-            queryset = Video.objects.filter(is_top=True).exclude(
-                views__in=[user]).order_by('create_at')[:10]
+            queryset = Video.objects.raw(f'select * from video_video vv where vv.is_top=true and vv.id not in (select vs.video_id from video_videoviews vs where vs.user_id={user.id}) order by create_at desc')
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -207,7 +215,7 @@ class UserFullyWatchedView(viewsets.generics.UpdateAPIView):
             if request.data['view']:
                 bonus = 0
                 for item in video.tariffs.all():
-                    if item.views > video.views.count():
+                    if item.views > video.videoviews__set.count():
                         bonus = item.price
                         break
 
@@ -224,7 +232,7 @@ class UserFullyWatchedView(viewsets.generics.UpdateAPIView):
 
                 if bonus == 0:
                     video.is_top = False
-                video.views.add(user)
+                VideoViews.objects.create(user=user, video=video)
                 video.watched_videos.add(user)
                 video.save()
 
@@ -246,8 +254,7 @@ class UserNotFullyWatchedView(viewsets.generics.UpdateAPIView):
         user = get_user_model().objects.get(id=request.data['user_id'])
         if video and user:
             if request.data['view']:
-                video.views.add(user)
-                video.save()
+                VideoViews.objects.create(user=user, video=video)
 
             if request.data['favorite']:
                 video.favorites.add(user)

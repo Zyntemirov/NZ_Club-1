@@ -59,9 +59,9 @@ class Video(models.Model):
                                 verbose_name="Файсбук")
     web_site = models.CharField(max_length=50, null=True, blank=True,
                                 verbose_name="Вебсайт")
-    views = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                                   related_name='videos',
-                                   verbose_name="Просмотров")
+    # views = models.ManyToManyField(settings.AUTH_USER_MODEL,
+    #                                related_name='videos',
+    #                                verbose_name="Просмотров")
     watched_videos = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                             related_name='watched_videos')
     favorites = models.ManyToManyField(settings.AUTH_USER_MODEL,
@@ -93,6 +93,9 @@ class Video(models.Model):
     def __str__(self):
         return self.title
 
+    def get_views_count(self):
+        return VideoViews.objects.filter(video__id=self.id).count()
+
     def save(self, *args, **kwargs):
         # try:
         #     this = Video.objects.get(id=self.id)
@@ -119,6 +122,19 @@ class Video(models.Model):
             img.save(self.image.path, quality=100, optimize=True)
         else:
             img.save(self.image.path, quality=100, optimize=True)
+
+
+class VideoViews(models.Model):
+    video = models.ForeignKey(Video, related_name='videos', verbose_name="Видео", on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Просмотры")
+        verbose_name_plural = _("Просмотры")
+    
+    def __str__(self):
+        return f'user: {self.user}, video: {self.video}'
 
 
 @receiver(pre_delete, sender=Video)

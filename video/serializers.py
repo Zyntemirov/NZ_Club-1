@@ -105,7 +105,7 @@ class VideoSerializer(serializers.ModelSerializer):
             return False
 
     def get_views_count(self, video):
-        return video.views.count()
+        return video.get_views_count()
 
     def get_favorites_count(self, video):
         return video.favorites.count()
@@ -152,7 +152,7 @@ class VideoDetailSerializer(serializers.ModelSerializer):
         return False
 
     def get_views_count(self, video):
-        return video.views.count()
+        return video.get_views_count()
 
     def get_favorites_count(self, video):
         return video.favorites.count()
@@ -186,11 +186,10 @@ class VideoDetailSerializer(serializers.ModelSerializer):
 
 
 class ViewsDetailVideoSerializer(serializers.ModelSerializer):
-    views = UserSerializer(many=True)
 
     class Meta:
         model = Video
-        fields = ['views']
+        fields = ['get_views_count']
 
 
 class CommentsDetailVideoSerializer(serializers.ModelSerializer):
