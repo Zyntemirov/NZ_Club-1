@@ -33,7 +33,9 @@ class VideosView(viewsets.generics.ListAPIView):
         print(self.request.user)
         user = get_user_model().objects.get(id=self.request.user.id)
         if user:
-            queryset = Video.objects.raw(f'''select distinct *
+            queryset = Video.objects.raw(f'''select vv.*, case when q.create_at is null 
+    then vv.create_at 
+    else q.create_at end
 from video_video vv 
 left join (
     select * from video_videoviews 
