@@ -132,6 +132,7 @@ class VideoViews(models.Model):
     class Meta:
         verbose_name = _("Просмотры")
         verbose_name_plural = _("Просмотры")
+        unique_together = [['video', 'user']]
     
     def __str__(self):
         return f'user: {self.user}, video: {self.video}'
