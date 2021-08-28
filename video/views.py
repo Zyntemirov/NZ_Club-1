@@ -33,17 +33,24 @@ class VideosView(viewsets.generics.ListAPIView):
         print(self.request.user)
         user = get_user_model().objects.get(id=self.request.user.id)
         if user:
-            queryset = Video.objects.raw(f'''select vv.*
-from video_video vv 
-left join (
-    select * from video_videoviews 
-    where user_id={user.id}
-    )q on vv.id=q.video_id 
-where vv.is_top=false and vv.is_active=true
-order by (
-    case when q.create_at is null 
-    then vv.create_at 
-    else q.create_at end) desc''')
+            queryset = Video.objects.raw(f'''
+                                            select vv.*
+                                            from video_video vv 
+                                            left join (
+                                                select * from video_videoviews 
+                                                where user_id={user.id}
+                                                )q on vv.id=q.video_id 
+                                            where (
+                                                case when q.create_at is null 
+                                                then vv.is_top=false
+                                                else vv.is_top=true or vv.is_top=false end
+                                                ) and vv.is_active=true
+                                            order by (
+                                                case when q.create_at is null 
+                                                then vv.create_at 
+                                                else q.create_at end
+                                                ) desc
+                                            ''')
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
