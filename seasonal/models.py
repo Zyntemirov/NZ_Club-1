@@ -161,6 +161,12 @@ class SeasonalApartment(models.Model):
         return self.name
 
 
+class ApartmentViews(models.Model):
+    apartment = models.ForeignKey(SeasonalApartment, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+
 class Request(models.Model):
     STATUS = (
         ('1', 'Отклонено'),

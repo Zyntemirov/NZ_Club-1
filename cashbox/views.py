@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import TransferHistoryUserFilter
 
 from accounts.models import Notification
 from .serializers import *
@@ -135,15 +137,15 @@ class ReceiveTransferView(viewsets.generics.UpdateAPIView):
 
 class TransferHistoryUserView(viewsets.generics.ListAPIView):
     serializer_class = TransferHistorySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TransferHistoryUserFilter
 
     def get_queryset(self):
         user = get_user_model().objects.get(id=self.kwargs['user_id'])
         if user:
             queryset = Transfer.objects.filter(
                 Q(sender=self.kwargs['user_id']) | Q(
-                    receiver=user.username)).filter(
-                create_at__gte=self.kwargs['from_date'],
-                create_at__lte=self.kwargs['before_date']).order_by('-create_at')
+                    receiver=user.username)).order_by('-create_at')
             return queryset
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)

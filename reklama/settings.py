@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'fcm_django',
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_filters',
     # app
     'accounts.apps.AccountsConfig',
     'video.apps.VideoConfig',

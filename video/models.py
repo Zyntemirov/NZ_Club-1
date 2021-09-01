@@ -59,9 +59,10 @@ class Video(models.Model):
                                 verbose_name="Файсбук")
     web_site = models.CharField(max_length=50, null=True, blank=True,
                                 verbose_name="Вебсайт")
-    # views = models.ManyToManyField(settings.AUTH_USER_MODEL,
-    #                                related_name='videos',
-    #                                verbose_name="Просмотров")
+    views = models.ManyToManyField(settings.AUTH_USER_MODEL,
+                                   related_name='videos',
+                                   verbose_name="Просмотров",
+                                   through='VideoViews')
     watched_videos = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                             related_name='watched_videos')
     favorites = models.ManyToManyField(settings.AUTH_USER_MODEL,
